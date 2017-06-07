@@ -1,0 +1,30 @@
+{
+  "name": "prosu",
+  "version": "0.0.0",
+  "description": "A site to post change to your osu profile daily",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arm1stice/prosu.git"
+  },
+  "author": "Wyatt Calandro",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Arm1stice/prosu/issues"
+  },
+  "homepage": "https://github.com/Arm1stice/prosu#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "coffee-script": "^1.12.6",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "express-session": "^1.15.3",
+    "kue": "^0.11.6",
+    "mongoose": "^4.10.5",
+    "rollbar": "^2.0.4",
+    "winston": "^2.3.1"
+  }
+}
