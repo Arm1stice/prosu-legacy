@@ -1,25 +1,21 @@
 mongoose = require 'mongoose'
 Schema = mongoose.Schema
 ObjectId = Schema.Types.ObjectId
+
+twitterSchema = new Schema({
+  profile: Object
+  token: String
+  tokenSecret: String
+})
 userSchema = new Schema({
-  username: String
-  email: String,
-  accountLevel: Number,
-  accountVerified: Boolean,
-  passwordHash: String,
-  friends: [{
-    friendSince: Number,
-    friend: {
-      type: ObjectId,
-      ref: 'userModel'
-    }
-  }],
+  osuSettings:
+    player:
+      type: ObjectId
+      ref: "osuPlayerModel"
+    mode: Number
+
   twitter:
-    type: Object
+    type: twitterSchema
     default: null
-  twitterOnly: Boolean
-  enterBasicInfo:
-    type: Boolean
-    default: false
 })
 module.exports = userSchema

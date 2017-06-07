@@ -6,7 +6,6 @@ osuRequestSchema = new Schema({
       type: ObjectId
       ref: 'osuPlayerModel'
     mode: String
-    postToTwitterIfNoNewPlays: Boolean
     dateChecked: Number
     topPlays: Array
 })
