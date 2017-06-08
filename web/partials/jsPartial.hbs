@@ -1,0 +1,50 @@
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="//{{hostname}}/js/jquery-3.0.0.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="//{{hostname}}/js/bootstrap.min.js"></script>
+<script src="//{{hostname}}/js/material.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // This command is used to initialize some elements and make them work properly
+    $.material.init();
+  });
+</script>
+{{#if isAuthenticated}}
+{{#unless user.accountVerified}}
+{{#unless user.enterBasicInfo}}
+<script>
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length,c.length);
+        }
+    }
+    return "";
+}
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+$(document).ready(function(){
+  var now = (new Date()).getTime();
+  var cookEasy = getCookie("enterbasicinfomodal")
+  // If the cookie exists
+  if(cookEasy !== ""){
+    if(Number(cookEasy) - now < 60 * 60 * 1000) return;
+  }
+  $("body").append('<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"><div class="modal-dialog" role="document"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="myModalLabel">Confirm your email</h4></div><div class="modal-body">Hey, it looks like you haven\'t confirmed your email yet! Please click the link in the email sent to {{user.email}}, or else you won\'t be able to reset your password! (Plus, you\'ll have to see this every hour)</div><div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div></div></div></div>')
+  $("#myModal").modal('show')
+  setCookie("enterbasicinfomodal", now + (60 * 60 * 1000), 1000000);
+})
+</script>
+{{/unless}}
+{{/unless}}
+{{/if}}
