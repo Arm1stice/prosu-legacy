@@ -13,7 +13,6 @@ userSchema = new Schema({
       type: ObjectId
       ref: "osuPlayerModel"
     mode: Number
-    default: null
     
   twitter:
     type: twitterSchema

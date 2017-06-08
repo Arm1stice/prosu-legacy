@@ -1,14 +1,13 @@
-rollbar = require 'rollbar'
+Rollbar = require 'rollbar'
 variables = require './variables'
-rollbar.init variables.rollbarAPI,
-  endpoint: variables.rollbarEndpoint
+rollbar = new Rollbar
+  accessToken: variables.rollbarAPI
   environment: variables.environment
+  handleUncaughtExceptions: if variables.environment isnt 'development' then true else false
+  handleUnhandledRejections: if variables.environment isnt 'development' then true else false
 
-module.exports.setup = () ->
-  rollbar.handleUncaughtExceptions null,
-    exitOnUncaughtException: true
 module.exports.handle = (err) ->
   console.error err
-  rollbar.handleError err, (err2) ->
+  rollbar.critical err, (err2) ->
     if err2?
       throw err2

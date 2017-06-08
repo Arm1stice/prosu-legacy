@@ -74,5 +74,6 @@ Vagrant.configure("2") do |config|
     # Install nodejs
     curl https://deb.nodesource.com/setup_7.x | bash
     apt-get install nodejs
+    apt-get install build-essentials
   SHELL
 end
