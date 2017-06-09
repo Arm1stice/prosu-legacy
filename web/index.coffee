@@ -14,6 +14,10 @@ variables = require '../util/variables'
 # Logger
 logger = require '../util/logger'
 
+# Use express-graceful-shutdown to handle our graceful shutdowns
+gracefulExit = require 'express-graceful-exit'
+app.use gracefulExit.middleware app
+
 # This is where we import all of our middleware
 app.use require('cookie-parser')() # The module that parses our cookies
 
