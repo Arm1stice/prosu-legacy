@@ -44,11 +44,8 @@ module.exports.twitterConsumerKey = twitter_consumer_key
 twitter_consumer_secret = if process.env.TWITTER_CONSUMER_SECRET then process.env.TWITTER_CONSUMER_SECRET else false
 module.exports.twitterConsumerSecret = twitter_consumer_secret
 # Twitter Callback Connect URL
-twitter_callback_url = if process.env.TWITTER_CALLBACK_URL then process.env.TWITTER_CALLBACK_URL else "https://#{domain}/connect/twitter/callback"
+twitter_callback_url = if process.env.TWITTER_CALLBACK_URL then process.env.TWITTER_CALLBACK_URL else "#{domain}/connect/twitter/callback"
 module.exports.twitterCallbackURL = twitter_callback_url
-# Twitter Callback Authorize URL
-twitter_authorize_url = if process.env.TWITTER_AUTHORIZE_URL then process.env.TWITTER_AUTHORIZE_URL else "https://#{domain}/connect/twitter/authorize/callback"
-module.exports.twitterAuthorizeURL = twitter_authorize_url
 # Osu API Key
 osu_api_key = if process.env.OSU_API_KEY then process.env.OSU_API_KEY else false
 module.exports.osuApiKey = osu_api_key
