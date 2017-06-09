@@ -11,6 +11,9 @@ app = express()
 # Application-wide variables
 variables = require '../util/variables'
 
+# Logger
+logger = require '../util/logger'
+
 # This is where we import all of our middleware
 app.use require('cookie-parser')() # The module that parses our cookies
 
@@ -44,3 +47,4 @@ app.use express.static require('path').join __dirname, "static"
 # Finally, we can open our server to the world!
 app.listen variables.port, (err) ->
   if err then throw err
+  logger.info "Webserver now listening on port #{variables.port}"
