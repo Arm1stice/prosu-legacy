@@ -1,3 +1,4 @@
 passport = require "passport"
 module.exports = (app) ->
-  app.get '/', (passport.authorize 'twitter', { failureRedirect: '/', failureFlash: true}), (req, res) ->
+  app.get '/', (passport.authenticate 'twitter', { failueRedirect: '/', failureFlash: true}), (req, res) ->
+    res.redirect '/'
