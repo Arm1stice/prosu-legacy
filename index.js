@@ -1,3 +1,4 @@
+require('dotenv').config({silent: true})
 var processType = process.argv[2] || "web"
 
 if(processType === "web"){
