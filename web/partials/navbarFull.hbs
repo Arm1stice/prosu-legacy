@@ -10,48 +10,20 @@
       </button>
       <a class="navbar-brand" href="/">
         Prosu
-        {{#if_eq hostname "staging.prosu.xyz"}}
-          <sub>Beta</sub>
-        {{/if_eq}}
       </a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-navbar-collapse">
-      {{#if isAuthenticated}}
-      <ul class="nav navbar-nav">
-        <li><a href="/">Home</a></li>
-        <!--
-        <li><a href="/chat">Public Chat</a></li>
-        -->
-      </ul>
-      {{/if}}
       <ul class="nav navbar-nav navbar-right">
         {{#if isAuthenticated}}
-        <!--<li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bell-o fa-2" aria-hidden="true"></i></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Notifications Coming Soon!</a></li>
-          </ul>
-        </li>-->
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{{user.username}}} <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="/me">Edit Profile</a></li>
-              <!--<li><a href="/account/password">Edit Password</a></li>-->
-              <li role="separator" class="divider"></li>
-              <!--<li><a href="#">Action</a></li>
-              <li><a href="#">Another action</a></li>
-              <li><a href="#">Something else here</a></li>
-              <li role="separator" class="divider"></li>-->
-              <li><a href="/logout">Logout</a></li>
-            </ul>
-          </li>
+          <li><a href="/logout">Logout</a></li>
         {{else}}
-          <li><a href="/login">Login</a></li>
-          <li><a href="/register">Register</a></li>
+          <li><a href="/connect/twitter">Sign in with Twitter</a></li>
         {{/if}}
       </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.navbar-collapse -->
+  </div>
+  <!-- /.container-fluid -->
 </nav>
