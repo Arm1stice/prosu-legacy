@@ -1,5 +1,5 @@
 variables = require './variables'
-handle = (require '../util/rollbar').handle
+handle = (require './rollbar').handle
 # Setup kue
 kue = require 'kue'
 queue = kue.createQueue {
