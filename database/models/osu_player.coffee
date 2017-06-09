@@ -4,5 +4,4 @@ module.exports = (mongoose, models) ->
   ObjectId = Schema.Types.ObjectId
 
   osuModel = mongoose.model 'osuPlayerModel', (require '../schemas/osu_player')
-  logger.debug "Added osu! player model"
   models.osuPlayer = osuModel
