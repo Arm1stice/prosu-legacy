@@ -9,6 +9,13 @@ userModel = models.userModel
 
 module.exports = (app) ->
   router = express.Router()
+
+  passport.serializeUser (user, done) ->
+    done null, user.id
+  passport.deserializeUser (id, done) ->
+    userModel.findById id, (err, user) ->
+      done err, user
+
   passport.use new twitterStrategy {
     consumerKey: variables.twitterConsumerKey
     consumerSecret: variables.twitterConsumerSecret
@@ -23,7 +30,17 @@ module.exports = (app) ->
       else
         # If we find a user, log that user in
         if user
-          done null, user
+          # Also, we want to check to see if their username has changed since the last time they logged in, if it did change, then we update the profile in the database
+          if user.profile.username if profile.username # No change
+            done null, user
+          else # It changed, update database
+            user.profile = profile
+            user.save (err) ->
+              if err
+                handle err
+                done err, null
+              else
+                done null, user
         # If not, we're gonna try to register them
         else
           user = new userModel {
