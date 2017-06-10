@@ -5,4 +5,4 @@ client = redis.createClient variables.redisUrl
 client.once 'ready', ->
   logger.info "Connected to the Redis server"
 
-module.expors = client
+module.exports = client
