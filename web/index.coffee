@@ -26,7 +26,7 @@ app.use require('body-parser').urlencoded # The module that parses POSTed body d
 
 app.use require('express-session') # The module that handles all of our sessions
   secret: variables.sessionSecret
-  store: if variables.environment is "production" then require('connect-redis') { url: variables.redisUrl } else null
+  store: if variables.environment is "production" then require('connect-redis') { client: (require '../util/redis') } else null
   resave: true
   saveUninitialized: true
 
