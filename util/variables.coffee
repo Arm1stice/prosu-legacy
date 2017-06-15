@@ -1,5 +1,5 @@
 # Domain Environment Variable
-domain = if process.env.HOSTNAME then process.env.HOSTNAME else "127.0.0.1"
+domain = if process.env.DOMAIN then process.env.DOMAIN else "127.0.0.1"
 module.exports.domain = domain
 # Port
 port = if process.env.PORT then process.env.PORT else 8080
