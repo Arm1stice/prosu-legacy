@@ -2,6 +2,7 @@ variables = require '../util/variables'
 logger = require '../util/logger'
 rollbar = require '../util/rollbar'
 mongoose = require 'mongoose'
+mongoose.Promise = global.Promise;
 mongoose.connect variables.mongoURI
 db = mongoose.connection
 db.once 'open', ->
