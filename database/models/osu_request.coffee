@@ -4,4 +4,4 @@ module.exports = (mongoose, models) ->
   ObjectId = Schema.Types.ObjectId
 
   osuModel = mongoose.model 'osuRequestModel', (require '../schemas/osu_request')
-  models.osuPlayer = osuModel
+  models.osuRequest = osuModel
