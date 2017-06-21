@@ -18,6 +18,9 @@ logger = require '../util/logger'
 gracefulExit = require 'express-graceful-exit'
 app.use gracefulExit.middleware app
 
+# If we are in production, then we will track the total number of requests every minute
+if variables.environment is "production"
+  app.use (require './datadog').middleware
 # This is where we import all of our middleware
 app.use require('cookie-parser')() # The module that parses our cookies
 
