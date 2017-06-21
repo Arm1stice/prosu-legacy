@@ -1,4 +1,4 @@
-<nav class="navbar navbar-info">
+<nav class="navbar navbar-info" style='background-color: #F6A'>
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -17,7 +17,7 @@
     <div class="collapse navbar-collapse" id="bs-navbar-collapse">
       <ul class="nav navbar-nav navbar-right">
         {{#if isAuthenticated}}
-          <li><a href="/logout">Logout</a></li>
+          <li><a href="/logout">Logout of @{{user.profile.username}}</a></li>
         {{else}}
           <li><a href="/connect/twitter">Sign in with Twitter</a></li>
         {{/if}}
