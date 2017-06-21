@@ -1,4 +1,5 @@
 logger = require './logger'
+variables = require './variables'
 # Setup the redis connection
 redis = require 'redis'
 client = redis.createClient variables.redisUrl
