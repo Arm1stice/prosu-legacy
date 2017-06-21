@@ -13,14 +13,15 @@ variables = require '../util/variables'
 # Redis client
 client = require '../util/redis'
 
+listenPort = if variables.environment is "production" then variables.port else 8081
 # Create our leadership testing server
 logger.debug "[index.coffee] Setting up web server for worker process..."
 app = require('express')()
 app.get '/', (req, res) ->
   res.end process.env.HOSTNAME # Return the hostname that Flynn has generated for us, which should be unique
-app.listen variables.port, (err) ->
+app.listen listenPort, (err) ->
   if err then throw err
-  logger.debug "[index.coffee] Web server now up and running on port #{variables.port}"
+  logger.debug "[index.coffee] Web server now up and running on port #{listenPort}"
 
 # The request client
 request = require 'request'
@@ -28,7 +29,7 @@ request = require 'request'
 # The function to determine that returns whether or not we are the leader
 getIfLeader = (done) ->
   logger.debug "[getIfLeader] Getting if we are the leader..."
-  request "http://leader.#{process.env.FLYNN_APP_NAME}-worker-web.discoverd:8080/", (err, res, body) ->
+  request "http://leader.#{process.env.FLYNN_APP_NAME}-worker-web.discoverd:#{listenPort}/", (err, res, body) ->
     if err
       logger.error "[getIfLeader] We got an error while trying to figure out if our process is the leader"
       return done err
