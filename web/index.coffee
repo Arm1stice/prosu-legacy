@@ -7,7 +7,7 @@ rollbar = require '../util/rollbar'
 # Import express, our web server, and create an instance of it, which is our web server process
 express = require 'express'
 app = express()
-
+RedisStore = (require ('connect-redis'))(require('express-session'))
 # Application-wide variables
 variables = require '../util/variables'
 
@@ -26,7 +26,7 @@ app.use require('body-parser').urlencoded # The module that parses POSTed body d
 
 app.use require('express-session') # The module that handles all of our sessions
   secret: variables.sessionSecret
-  store: if variables.environment is "production" then require('connect-redis') { client: (require '../util/redis') } else null
+  store: new RedisStore { client: (require '../util/redis') }
   resave: true
   saveUninitialized: true
 
