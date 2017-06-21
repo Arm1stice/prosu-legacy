@@ -13,7 +13,10 @@ userSchema = new Schema({
       type: ObjectId
       ref: "osuPlayerModel"
     mode: Number
-    
+    enabled:
+      type: Boolean
+      default: false
+
   twitter:
     type: twitterSchema
 })
