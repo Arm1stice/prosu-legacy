@@ -16,9 +16,6 @@ module.exports.rollbarEndpoint = rollbarEndpoint
 # MongoDB URI
 mongoURI = if process.env.MONGODB_URI then process.env.MONGODB_URI else 'mongodb://localhost/test'
 module.exports.mongoURI = mongoURI
-# SendGrid API Key
-sendGridKey = if process.env.SENDGRID_API_KEY then process.env.SENDGRID_API_KEY else null
-module.exports.sendGridKey = sendGridKey
 # CI Mode
 ciMode = if process.env.NODE_ENV is "circle" or process.argv[2] is "ci" then yes else no
 module.exports.ciMode = ciMode
