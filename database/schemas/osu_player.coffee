@@ -3,7 +3,7 @@ Schema = mongoose.Schema
 ObjectId = Schema.Types.ObjectId
 osuPlayerSchema = new Schema({
   userid: Number
-  username: String
+  name: String
   lastChecked: Number
   modes:
     standard:
