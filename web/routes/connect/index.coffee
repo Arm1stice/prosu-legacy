@@ -31,10 +31,10 @@ module.exports = (app) ->
         # If we find a user, log that user in
         if user
           # Also, we want to check to see if their username has changed since the last time they logged in, if it did change, then we update the profile in the database
-          if user.profile.username is profile.username # No change
+          if user.twitter.profile.username is profile.username # No change
             done null, user
           else # It changed, update database
-            user.profile = profile
+            user.twitter.profile = profile
             user.save (err) ->
               if err
                 handle err
