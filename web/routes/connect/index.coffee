@@ -25,22 +25,22 @@ module.exports = (app) ->
       # Handle the error if there is one
       if err
         handle err
-        done err, null
+        return done err, null
       # If there isn't an error
       else
         # If we find a user, log that user in
         if user
           # Also, we want to check to see if their username has changed since the last time they logged in, if it did change, then we update the profile in the database
-          if user.profile.username if profile.username # No change
+          if user.profile.username is profile.username # No change
             done null, user
           else # It changed, update database
             user.profile = profile
             user.save (err) ->
               if err
                 handle err
-                done err, null
+                return done err, null
               else
-                done null, user
+                return done null, user
         # If not, we're gonna try to register them
         else
           user = new userModel {
@@ -54,10 +54,11 @@ module.exports = (app) ->
             # If there is an error, handle and return
             if err
               handle err
-              done err, null
+              return done err, null
             # If there isn't an error, return the newly created user
             else
-              done null, user
+              return done null, user
+
   (require './twitter') router
 
   app.use '/connect', router
