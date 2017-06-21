@@ -13,14 +13,6 @@ variables = require '../util/variables'
 # Redis client
 client = require '../util/redis'
 
-# Ratelimiter for the osu! api
-Limiter = require 'ratelimiter'
-limit = new Limiter
-  id: "osu_api"
-  db: client
-  max: 100 # 100 requests
-  duration: 60000 # Per 60 seconds
-
 # Create our leadership testing server
 logger.debug "[index.coffee] Setting up web server for worker process..."
 app = require('express')()
@@ -45,4 +37,4 @@ getIfLeader = (done) ->
       return done Error "Response code wasn't 200! Was #{res.statusCode}"
     result = if body is process.env.HOSTNAME then true else false
     logger.debug "[getIfLeader] Leader Result: #{result}"
-    return  done result # If the response we get is equal to our randomString, then we are the leader
+    return done result # If the response we get is equal to our randomString, then we are the leader
