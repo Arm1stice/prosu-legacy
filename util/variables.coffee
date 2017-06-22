@@ -49,3 +49,6 @@ module.exports.osuApiKey = osu_api_key
 # Redis URL
 redis_url = if process.env.REDIS_URL then process.env.REDIS_URL else 'redis://localhost'
 module.exports.redisUrl = redis_url
+# Datadog API Key
+datadog_api_key = if process.env.DATADOG_API_KEY then process.env.DATADOG_API_KEY else null
+module.exports.datadogApiKey = datadog_api_key
