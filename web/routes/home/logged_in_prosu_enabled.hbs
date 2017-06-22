@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> cssPartial this}}
+
+<body>
+  {{> navbarFull this}}
+  <center>
+    <h1>Tweet Posting is Currently <span style='color: green'>Enabled</span></h1>
+    <form id='disableForm' method='post' action='/disable'>
+      <button id='disableButton' class='btn btn-raised btn-danger'>
+        Disabled Tweet Posting
+      </button>
+    </form>
+    {{> jsPartial this}}
+    <script>
+      $(document).ready(function() {
+        $("#disableForm").submit(function() {
+          $("#disableButton").attr('disabled', 'disabled')
+        })
+      })
+    </script>
+</body>
+
+</html>
