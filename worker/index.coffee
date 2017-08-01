@@ -37,7 +37,7 @@ getIfLeader = (done) ->
       logger.error "[getIfLeader] The response code from the leader process wasn't 200 for some reason"
       return done Error "Response code wasn't 200! Was #{res.statusCode}"
     result = if body is process.env.HOSTNAME then true else false
-    logger.debug "[getIfLeader] Leader Result: #{result}"
+    logger.debug "[getIfLeader] Leader Result: #{result}. Expected #{process.env.HOSTNAME} but got #{body}"
     return done null, result # If the response we get is equal to our randomString, then we are the leader
 queue.inactive (err, ids) ->
   if err then return handle err
