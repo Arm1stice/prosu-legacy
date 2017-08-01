@@ -18,6 +18,8 @@ logger = require '../util/logger'
 gracefulExit = require 'express-graceful-exit'
 app.use gracefulExit.middleware app
 
+app.set 'trust proxy', true
+
 # If we are in production, then we will track the total number of requests every minute
 if variables.environment is "production"
   app.use (require './datadog').middleware
@@ -48,6 +50,12 @@ app.engine 'hbs', hbs.__express
 
 # Here, we connect our static content to express
 app.use express.static require('path').join __dirname, "static"
+
+# Setup Let's Encrypt
+if variables.le is "true"
+  logger.debug "Setup LetsEncrypt Path"
+  app.use variables.le_p, (req, res) ->
+    res.end variables.le_r
 
 # All of our routes are handled in routes/ so this is where we call the function to set those up
 (require './routes/index') app
