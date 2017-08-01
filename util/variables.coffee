@@ -14,7 +14,7 @@ module.exports.rollbarAPI = rollbarAPI
 rollbarEndpoint = if process.env.ROLLBAR_ENDPOINT then process.env.ROLLBAR_ENDPOINT else null
 module.exports.rollbarEndpoint = rollbarEndpoint
 # MongoDB URI
-mongoURI = if process.env.MONGODB_URI then process.env.MONGODB_URI else 'mongodb://localhost/test'
+mongoURI = if process.env.DATABASE_URL then process.env.DATABASE_URL else 'mongodb://localhost/test'
 module.exports.mongoURI = mongoURI
 # CI Mode
 ciMode = if process.env.NODE_ENV is "circle" or process.argv[2] is "ci" then yes else no
