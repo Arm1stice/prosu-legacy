@@ -38,7 +38,7 @@ getIfLeader = (done) ->
       return done Error "Response code wasn't 200! Was #{res.statusCode}"
     result = if body is process.env.HOSTNAME then true else false
     logger.debug "[getIfLeader] Leader Result: #{result}"
-    return done result # If the response we get is equal to our randomString, then we are the leader
+    return done null, result # If the response we get is equal to our randomString, then we are the leader
 queue.inactive (err, ids) ->
   if err then return handle err
   logger.info "[index.coffee] There are #{ids.length} inactive jobs in kue."
@@ -50,4 +50,5 @@ queue.on 'error', (err) ->
   handle err
 queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
-getIfLeader()
+getIfLeader (err, result) ->
+  if err then logger.error err
