@@ -5,8 +5,7 @@ osuRequestSchema = new Schema({
     player:
       type: ObjectId
       ref: 'osuPlayerModel'
-    mode: String
     dateChecked: Number
-    topPlays: Array
+    data: Object
 })
 module.exports = osuRequestSchema

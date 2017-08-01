@@ -9,22 +9,22 @@ osuPlayerSchema = new Schema({
     standard:
       checks: [{
         type: ObjectId
-        ref: 'osuPlayerRequest'
-    }]
+        ref: 'osuRequestModel'
+      }]
     mania:
       checks: [{
         type: ObjectId
-        ref: 'osuPlayerRequest'
+        ref: 'osuRequestModel'
       }]
     taiko:
       checks: [{
         type: ObjectId
-        ref: 'osuPlayerRequest'
+        ref: 'osuRequestModel'
       }]
     ctb:
       checks: [{
         type: ObjectId
-        ref: 'osuPlayerRequest'
+        ref: 'osuRequestModel'
       }]
 })
 module.exports = osuPlayerSchema

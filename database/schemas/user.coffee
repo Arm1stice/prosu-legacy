@@ -12,7 +12,10 @@ userSchema = new Schema({
     player:
       type: ObjectId
       ref: "osuPlayerModel"
-    mode: Number
+      default: null
+    mode:
+      type: Number
+      default: 0
     enabled:
       type: Boolean
       default: false
