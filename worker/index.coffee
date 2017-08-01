@@ -50,3 +50,4 @@ queue.on 'error', (err) ->
   handle err
 queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
+getIfLeader()
