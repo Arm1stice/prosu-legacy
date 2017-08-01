@@ -5,5 +5,6 @@ module.exports = (app) ->
   (require './privacy') app
   (require './enable') app
   (require './disable') app
+  (require './settings') app
   (require './404') app
   (require './500') app
