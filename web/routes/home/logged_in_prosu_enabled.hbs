@@ -4,21 +4,62 @@
 
 <body>
   {{> navbarFull this}}
-  <center>
-    <h1>Tweet Posting is Currently <span style='color: green'>Enabled</span></h1>
-    <form id='disableForm' method='post' action='/disable'>
-      <button id='disableButton' class='btn btn-raised btn-danger'>
-        Disabled Tweet Posting
+  <div class='container'>
+    <center>
+      <h1>Tweet Posting is Currently <span style='color: green'>Enabled</span></h1>
+      {{#if error}}
+        <div class='alert alert-danger'>{{error}}</div>
+      {{/if}}
+      {{#if success}}
+        <div class='alert alert-success'>{{success}}</div>
+      {{/if}}
+      {{#unless user.osuSettings.player}}
+        <b><span style='color: red'>WARNING: TWEETS WILL NOT BE POSTED TO YOUR ACCOUNT UNTIL YOU FILL OUT YOUR INFO BELOW!</span></b>
+      {{/unless}}
+      <form method='post' action='/settings' id='settings' class="form-vertical">
+        <fieldset>
+          <div class="col-md-8 col-md-offset-2">
+            <h3>osu! Username to Track</h3>
+            <input type='text' class='form-control' {{#if inputSettings.player.name}} value="{{inputSettings.player.name}}" {{/if}} id='osu_username' name='osu_username' placeholder="osu! username"><br>
+          </div>
+          <div class="col-md-8 col-md-offset-2">
+            <h3>osu! Game Mode to Track</h3>
+            <select id='mode' name='game_mode' class="form-control">
+              {{#each modes}}
+                {{#if this.selected}}
+                  <option value="{{@index}}" selected>{{this.name}}</option>
+                {{else}}
+                  <option value="{{@index}}">{{this.name}}</option>
+                {{/if}}
+              {{/each}}
+            </select>
+          </div>
+          <div class="col-md-8 col-md-offset-2">
+            <button class='btn btn-lg btn-raised btn-info' type='submit'>Save Settings</button>
+            <div>
+        </fieldset>
+      </form>
+
+      <form id='disableForm' method='post' action='/disable' class="form-horizontal">
+        <button id='disableButton' class='btn btn-raised btn-danger'>
+        Disable Tweet Posting
       </button>
-    </form>
-    {{> jsPartial this}}
-    <script>
-      $(document).ready(function() {
-        $("#disableForm").submit(function() {
-          $("#disableButton").attr('disabled', 'disabled')
+      </form>
+      </div>
+      {{> jsPartial this}}
+      <script>
+        $(document).ready(function() {
+          $("#disableForm").submit(function() {
+            $("#disableButton").attr('disabled', 'disabled')
+          })
+          $("#settings").submit(function(event) {
+            if (Number($("#mode").val()) < 0 || Number($("#mode").val()) > 3) {
+              alert("Invalid mode")
+              event.preventDefault()
+            }
+          })
         })
-      })
-    </script>
+      </script>
 </body>
 
 </html>
