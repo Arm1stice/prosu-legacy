@@ -1,8 +1,8 @@
 # Stats tracking sent to DataDog!
-metrics = require 'datadog-metrics'
-metrics.init {
-  host: process.env.HOSTNAME
-  prefix: 'prosu.'
+variables = require '../util/variables'
+metrics = require 'dogapi'
+metrics.initialize {
+  api_key: variables.datadogApiKey
 }
 totalRequests = 0;
 
@@ -11,6 +11,6 @@ module.exports.middleware = (req, res, next) ->
   next()
 
 setInterval ->
-  metrics.gauge 'web.requests', totalRequests
+  metrics.metric.send 'web.requests', totalRequests
   totalRequests = 0
 , 60000
