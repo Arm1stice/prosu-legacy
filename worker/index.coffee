@@ -39,3 +39,14 @@ getIfLeader = (done) ->
     result = if body is process.env.HOSTNAME then true else false
     logger.debug "[getIfLeader] Leader Result: #{result}"
     return done result # If the response we get is equal to our randomString, then we are the leader
+queue.inactive (err, ids) ->
+  if err then return handle err
+  logger.info "[index.coffee] There are #{ids.length} inactive jobs in kue."
+queue.active (err, ids) ->
+  if err then return handle err
+  logger.info "[index.coffee] There are #{ids.length} active jobs in kue."
+queue.on 'error', (err) ->
+  logger.info "[index.coffee] We received an error in kue."
+  handle err
+queue.watchStuckJobs 1000
+(require './osu_player_lookup') queue
