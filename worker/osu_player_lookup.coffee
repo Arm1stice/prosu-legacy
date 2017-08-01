@@ -68,8 +68,7 @@ module.exports = (queue) ->
                   }
                   checksArray.push request._id
                   shouldSaveRequest = true
-                  shouldSaveUser = true
-                if checksArray.length is 0
+                else if checksArray.length is 0
                   logger.info "[osu_player_lookup.coffee] We've never checked the rank on player #{player.name} for mode #{modes[job.data.mode]}. Adding it to database..."
                   request = new osuRequest {
                     player: user._id
@@ -78,9 +77,9 @@ module.exports = (queue) ->
                   }
                   checksArray.push request._id
                   shouldSaveRequest = true
-                  shouldSaveUser = true
                 else
                   logger.info "[osu_player_lookup.coffee] We have a recent rank check for #{player.name} under game mode #{modes[job.data.mode]}. No need to do anything"
+                  return done null, user._id
                 if shouldSaveRequest
                   logger.info "[osu_player_lookup.coffee] We have to save the request for #{player.name}. Doing so...."
                   request.save (err) ->
@@ -90,7 +89,7 @@ module.exports = (queue) ->
                       logger.info "[osu_player_lookup.coffee] Saved #{player.name} to database. Job #{job.id} completed"
                       if err then return done "An error occurred while saving the new user to the database"
                       return done null, user._id
-                if shouldSaveUser
+                else if shouldSaveUser
                   logger.info "[osu_player_lookup.coffee] We need to save #{player.name} to the database. Doing so..."
                   user.save (err) ->
                     if err then return done "An error occurred while saving the new user to the database"
