@@ -1,5 +1,6 @@
 Rollbar = require 'rollbar'
 variables = require './variables'
+logger = require './logger'
 rollbar = new Rollbar
   accessToken: variables.rollbarAPI
   debug: true
@@ -12,7 +13,7 @@ rollbar = new Rollbar
   payload:
     environment: variables.environment
 module.exports.handle = (err) ->
-  console.error err
+  logger.error err
   rollbar.critical err, (err2) ->
     if err2?
       throw err2
