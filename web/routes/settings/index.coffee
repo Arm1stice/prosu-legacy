@@ -16,6 +16,7 @@ module.exports = (app) ->
       username: req.body.osu_username
       mode: req.body.game_mode
     }
+    .ttl 30000
     .removeOnComplete true
     .save()
     job.on 'complete', (result) ->
