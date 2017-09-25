@@ -125,7 +125,7 @@ module.exports = (queue) ->
                     return done null, newUser._id
           # The user doesn't exist
           else
-            done "The user you specified doesn't exist"
+            done "The user you specified doesn't exist or hasn't played that game mode"
         .catch (err) ->
           logger.error "An error occurred"
           logger.error err
