@@ -72,10 +72,10 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get install -y mongodb-org
     # Install Redis
-    apt-get install redis-server
+    apt-get install -y redis-server
     # Install nodejs
     curl https://deb.nodesource.com/setup_7.x | bash
-    apt-get install nodejs
-    apt-get install build-essentials
+    apt-get install -y nodejs
+    apt-get install -y build-essential
   SHELL
 end
