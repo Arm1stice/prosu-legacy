@@ -3,3 +3,5 @@ npm-debug.log
 .vagrant/*
 *.log
 .env
+.idea/*
+.DS_Store
