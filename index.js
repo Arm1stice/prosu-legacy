@@ -1,4 +1,5 @@
 require('dotenv').config({silent: true})
+require('./customFunctions');
 var processType = process.argv[2] || "web"
 
 if(processType === "web"){
