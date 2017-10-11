@@ -77,5 +77,7 @@ Vagrant.configure("2") do |config|
     curl https://deb.nodesource.com/setup_7.x | bash
     apt-get install -y nodejs
     apt-get install -y build-essential
+    # Install cairo
+    apt-get install -y libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
   SHELL
 end
