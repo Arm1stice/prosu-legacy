@@ -31,10 +31,13 @@ module.exports = (app) ->
         # If we find a user, log that user in
         if user
           # Also, we want to check to see if their username has changed since the last time they logged in, if it did change, then we update the profile in the database
-          if user.twitter.profile.username is profile.username # No change
+          if user.twitter.profile.username is profile.username and user.twitter.token is token and user.twitter.tokenSecret is tokenSecret # No change
             done null, user
           else # It changed, update database
+            logger.info "[connect/index.coffee] Twitter user information needs to be updated for #{user._id}, as we have outdated tokens in our database."
             user.twitter.profile = profile
+            user.twitter.token = token
+            user.twitter.tokenSecret = tokenSecret
             user.save (err) ->
               if err
                 handle err
