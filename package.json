@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Arm1stice/prosu#readme",
   "dependencies": {
+    "async": "^2.5.0",
     "body-parser": "^1.17.2",
     "canvas": "^1.6.6",
     "coffee-script": "^1.12.6",
@@ -33,6 +34,7 @@
     "kue": "^0.11.6",
     "lodash": "^4.17.4",
     "mongoose": "^4.10.5",
+    "node-cron": "^1.2.1",
     "node-osu": "^1.2.0",
     "passport": "^0.3.2",
     "passport-twitter": "^1.0.4",
