@@ -68,10 +68,7 @@ queue.inactive (err, ids) ->
 queue.active (err, ids) ->
   # Remove all stuck active jobs on start
   if err then return handle err
-  logger.info "[index.coffee] There are #{ids.length} active jobs in kue. Removing them.."
-  ids.forEach (id) ->
-    kue.Job.get id, (err, job) ->
-      job.remove()
+  logger.info "[index.coffee] There are #{ids.length} active jobs in kue."
 queue.on 'error', (err) ->
   logger.info "[index.coffee] We received an error in kue."
   handle err
