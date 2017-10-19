@@ -11,6 +11,8 @@ logger = require '../util/logger'
 # Environment variables
 variables = require '../util/variables'
 
+# Error handler
+handle = (require '../util/rollbar').handle
 # Twitter
 twitter = require 'twitter'
 # MongoDB User object
@@ -24,7 +26,7 @@ modes = [
   'mania'
 ]
 
-generateImage = require './util/index'
+generateImage = require './util/generateImage/index'
 Limiter = require 'ratelimiter'
 limiter = new Limiter
   id: "tweet_osu_api"
@@ -45,35 +47,53 @@ tryLimit = (done) ->
 # Our function
 module.exports = (queue) ->
   # When we process the job, we are passed two variables, the job object, and a function to call when we complete our task
-  queue.process 'prosu_tweet_creation', (job, done) ->
+  queue.process 'prosu_tweet_creation', 50, (job, done) ->
     # First we have to populate the player saved in their osu!settings
-    user = job.data.user
-    if not user.osuSettings.enabled then return done "User doesn't have tweets enabled"
-    userModel.findOneById user._id
+    userId = job.data.id
+    userModel.findById userId
     .populate 'osuSettings.player'
     .exec (err, populated_user) ->
-      if err then return done err
+      if err
+        logger.error "[prosu_tweet_creation 55] Error occured for user #{userId} while populating osuSettings.player"
+        logger.error err
+        return done err
+      if not populated_user.osuSettings.enabled then return done "User #{userId} doesn't have tweets enabled"
+      if populated_user.tweetHistory.length > 0
+        if Date.now() - (populated_user.tweetHistory[populated_user.tweetHistory.length - 1]).datePosted < 43200000 # If there was a tweet posted in the last 12 hours, something is wrong
+          return done "The user #{userId} has a recent tweet posted, something is WRONG"
       if not populated_user.osuSettings.player then return done "No player saved in this user profile"
-      osuPlayer.findOneById populated_user.osuSettings.player._id
-      .populate "modes.#{modes[user.osuSettings.mode]}.checks"
+      osuPlayer.findById populated_user.osuSettings.player._id
+      .populate "modes.#{modes[populated_user.osuSettings.mode]}.checks"
       .exec (err, player) ->
-        if err then return done err
+        if err
+          logger.error "[prosu_tweet_creation 69] Error occured for user #{userId} while populating osuPlayer checks"
+          logger.error err
+          return done err
         # Check to see if we already have stats that are from the last hour
-        checks = player.modes[modes[user.osuSettings.mode]].checks
+        checks = player.modes[modes[populated_user.osuSettings.mode]].checks
         if (new Date).getTime() - checks[checks.length - 1].dateChecked > 3600000
           # We don't need to check for stats again
-          requestStats populated_user.player, user.osuSettings.mode, (err, userId) ->
-            if err then return done err
+          requestStats populated_user.player, populated_user.osuSettings.mode, (err, userId) ->
+            if err
+              logger.error "[prosu_tweet_creation 78] Error occured for user #{userId} while requesting stats"
+              logger.error err
+              return done err
             createAndPostTweet populated_user, player, (err) ->
-              if err then return done err
+              if err
+                logger.error "[prosu_tweet_creation 83] Error occured for user #{userId} while creating and posting tweet"
+                logger.error err
+                return done err
               # Guess it worked LOL
-              return done()
+              return done(null, userId)
         else
           # We need to check for their stats again
           createAndPostTweet populated_user, player, (err) ->
-            if err then return done err
+            if err
+              logger.error "[prosu_tweet_creation 92] Error occured for user #{userId} while creating and posting tweet"
+              logger.error err
+              return done err
             # Guess it worked LOL
-            return done()
+            return done(null, userId)
 ## GET THE LATEST STATS FOR A SPECIFIC USER ON A SPECIFIC GAME MODE
 requestStats = (user, mode, done) ->
   tryLimit (err) ->
@@ -210,14 +230,14 @@ createAndPostTweet = (user, player, done) ->
       # image is our image buffer
 
       # Upload image to twitter
-      twitterClient.post 'media/upload', media: image, (err, media, response) ->
+      twitterClient.post 'media/upload', {media: image}, (err, media, response) ->
         if err then return done err
         # The status we are going to post
         statusUpdate =
           status: "Daily osu! Stats Post powered by https://prosu.xyz #ProsuTweetPoster"
           media_ids: media.media_id_string
         # Post the status update
-        twitterClient.post 'status/update', statusUpdate, (err, tweet) ->
+        twitterClient.post 'statuses/update', statusUpdate, (err, tweet) ->
           if err then return done err
           # Push the new status to the history of statuses posted in our database
           user.tweetHistory.push {
