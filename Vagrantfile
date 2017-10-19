@@ -79,5 +79,13 @@ Vagrant.configure("2") do |config|
     apt-get install -y build-essential
     # Install cairo
     apt-get install -y libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
+    cd /vagrant
+    npm install
+  SHELL
+
+  # Start our databases
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    service mongod start
+    service redis-server start
   SHELL
 end
