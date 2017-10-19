@@ -1,5 +1,6 @@
 node_modules/*
 npm-debug.log
+helper_scripts/image.png
 .vagrant/*
 *.log
 .env
