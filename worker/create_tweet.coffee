@@ -110,11 +110,11 @@ requestStats = (user, mode, done) ->
       .then (player) ->
         # The user exists
         if player
-          logger.debug "Player #{job.data.username} exists"
+          logger.debug "Player #{player.name} exists"
           osuPlayer.findOne {
             userid: player.id
           }
-          .populate "modes.#{modes[job.data.mode]}.checks"
+          .populate "modes.#{modes[mode]}.checks"
           .exec (err, user) ->
             if err
               logger.error "[create_tweet.coffee] An error occured while looking up a player in osuPlayer"
@@ -129,9 +129,9 @@ requestStats = (user, mode, done) ->
                 logger.info "[create_tweet.coffee] User with id #{player.id} has an older username, updating it"
                 shouldSaveUser = true
                 user.name = player.name
-              checksArray = user.modes[modes[job.data.mode]].checks
+              checksArray = user.modes[modes[mode]].checks
               if checksArray.length isnt 0 and (new Date).getTime() - checksArray[checksArray.length - 1].dateChecked > 86400000
-                logger.info "[create_tweet.coffee] It's been more than a day since we last looked up the rank of #{player.name} for mode #{modes[job.data.mode]}. Adding to checks array"
+                logger.info "[create_tweet.coffee] It's been more than a day since we last looked up the rank of #{player.name} for mode #{modes[mode]}. Adding to checks array"
                 request = new osuRequest {
                   player: user._id
                   data: player
@@ -140,7 +140,7 @@ requestStats = (user, mode, done) ->
                 checksArray.push request._id
                 shouldSaveRequest = true
               else if checksArray.length is 0
-                logger.info "[create_tweet.coffee] We've never checked the rank on player #{player.name} for mode #{modes[job.data.mode]}. Adding it to database..."
+                logger.info "[create_tweet.coffee] We've never checked the rank on player #{player.name} for mode #{modes[mode]}. Adding it to database..."
                 request = new osuRequest {
                   player: user._id
                   data: player
@@ -149,7 +149,7 @@ requestStats = (user, mode, done) ->
                 checksArray.push request._id
                 shouldSaveRequest = true
               else
-                logger.info "[create_tweet.coffee] We have a recent rank check for #{player.name} under game mode #{modes[job.data.mode]}. No need to do anything"
+                logger.info "[create_tweet.coffee] We have a recent rank check for #{player.name} under game mode #{modes[mode]}. No need to do anything"
                 return done null, user._id
               if shouldSaveRequest
                 logger.info "[create_tweet.coffee] We have to save the request for #{player.name}. Doing so...."
@@ -157,14 +157,14 @@ requestStats = (user, mode, done) ->
                   if err then return done "An error occurred while saving the stats request to the database"
                   logger.info "[create_tweet.coffee] Saved the request for user #{player.name}. Saving user to database..."
                   user.save (err) ->
-                    logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job #{job.id} completed"
+                    logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                     if err then return done "An error occurred while saving the new user to the database"
                     return done null, user._id
               else if shouldSaveUser
                 logger.info "[create_tweet.coffee] We need to save #{player.name} to the database. Doing so..."
                 user.save (err) ->
                   if err then return done "An error occurred while saving the new user to the database"
-                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job #{job.id} completed"
+                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                   return done null, user._id
               return done null, user._id
             else
@@ -189,10 +189,10 @@ requestStats = (user, mode, done) ->
               }
               request.save (err) ->
                 if err then return done "An error occurred while saving the stats request to the database"
-                newUser.modes[modes[job.data.mode]].checks.push request._id
+                newUser.modes[modes[mode]].checks.push request._id
                 newUser.save (err) ->
                   if err then return done "An error occurred while saving the new user to the database"
-                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job #{job.id} completed"
+                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                   return done null, newUser._id
         # The user doesn't exist
         else
