@@ -3,7 +3,7 @@ passport = require 'passport'
 handle = (require '../../../util/rollbar').handle
 variables = require '../../../util/variables'
 twitterStrategy = (require 'passport-twitter').Strategy
-
+logger = require '../../../util/logger'
 models = (require '../../../database/index').models
 userModel = models.userModel
 
