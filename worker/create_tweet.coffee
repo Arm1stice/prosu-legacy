@@ -73,7 +73,7 @@ module.exports = (queue) ->
         checks = player.modes[modes[populated_user.osuSettings.mode]].checks
         if (new Date).getTime() - checks[checks.length - 1].dateChecked > 3600000
           # We don't need to check for stats again
-          requestStats populated_user.player, populated_user.osuSettings.mode, (err, userId) ->
+          requestStats populated_user.osuSettings.player, populated_user.osuSettings.mode, (err, userId) ->
             if err
               logger.error "[prosu_tweet_creation 78] Error occured for user #{userId} while requesting stats"
               logger.error err
