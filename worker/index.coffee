@@ -50,5 +50,6 @@ queue.on 'error', (err) ->
   handle err
 queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
+(require './create_tweet') queue
 getIfLeader (err, result) ->
   if err then logger.error err
