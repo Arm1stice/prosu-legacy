@@ -1,3 +1,4 @@
+if(process.env.NODE_ENV) require('newrelic');
 require('dotenv').config({silent: true})
 require('./customFunctions');
 var processType = process.argv[2] || "web"
