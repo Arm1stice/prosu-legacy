@@ -7,6 +7,10 @@ twitterSchema = new Schema({
   token: String
   tokenSecret: String
 })
+tweetSchema = new Schema {
+  datePosted: Number
+  tweetObject: Object
+}
 userSchema = new Schema({
   osuSettings:
     player:
@@ -19,7 +23,7 @@ userSchema = new Schema({
     enabled:
       type: Boolean
       default: false
-
+  tweetHistory: [tweetSchema]
   twitter:
     type: twitterSchema
 })
