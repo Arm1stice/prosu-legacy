@@ -1,8 +1,11 @@
 # Ok, this is our Kue queue, which will handle how jobs are handled by our workers
 queue = require('../util/queue')
-
+kue = require 'kue'
 # Import the logger
 logger = require('../util/logger')
+
+# User Model
+userModel = (require '../database/index').models.userModel
 
 # Rollbar
 handle = require('../util/rollbar').handle
@@ -10,10 +13,30 @@ handle = require('../util/rollbar').handle
 # Variables
 variables = require '../util/variables'
 
+# Cron
+cron = require 'node-cron'
+
 # Redis client
 client = require '../util/redis'
 
+# List of people whose tweets we haven't finished yet
+profilesNotFinished = []
+
+# List of people we still need to start to make tweets for
+profilesNotStarted = []
+
+# List of profiles we are currently working on
+profilesWeAreWorkingOn = 0
+
+# Posting Interval variable (For storing our intertval)
+postingInterval = null
+
+# Port to listen on
 listenPort = if variables.environment is "production" then variables.port else 8081
+
+# Async
+a = require 'async'
+
 # Create our leadership testing server
 logger.debug "[index.coffee] Setting up web server for worker process..."
 app = require('express')()
@@ -43,8 +66,12 @@ queue.inactive (err, ids) ->
   if err then return handle err
   logger.info "[index.coffee] There are #{ids.length} inactive jobs in kue."
 queue.active (err, ids) ->
+  # Remove all stuck active jobs on start
   if err then return handle err
-  logger.info "[index.coffee] There are #{ids.length} active jobs in kue."
+  logger.info "[index.coffee] There are #{ids.length} active jobs in kue. Removing them.."
+  ids.forEach (id) ->
+    kue.Job.get id, (err, job) ->
+      job.remove()
 queue.on 'error', (err) ->
   logger.info "[index.coffee] We received an error in kue."
   handle err
@@ -52,4 +79,71 @@ queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
 (require './create_tweet') queue
 getIfLeader (err, result) ->
-  if err then logger.error err
+  if err
+    logger.error err
+
+# Our scheduler for midnight every day
+cron.schedule '0 15 * * *', ->
+  logger.info '[CRON SCHEDULER] TIME TO POST TWEETS!'
+  getIfLeader (err, isLeader) ->
+    if err and variables.environment isnt "development"
+      logger.error '[CRON SCHEDULER] FAILED TO SEE IF WE ARE THE LEADER. ABORTING!'
+    else
+      if isLeader || variables.environment is "development"
+        ## We can start creating jobs
+        # Get ObjectIDs of users who have an osu player set and have turned on tweet posting
+        userModel.distinct '_id', {'osuSettings.enabled': true, 'osuSettings.player': { $ne: null}}, (err, usersToPost) ->
+          if err
+            logger.error "[CRON SCHEDULER] ERROR OCCURRED WHILE TRYING TO GET LIST OF USERS TO POST TWEETS FOR"
+            logger.error err
+            handle err
+          else
+            logger.info "[CRON SCHEDULER] WE GOT OUR LIST OF USERS (#{usersToPost.length} users)"
+            # Now we have our list of users
+            # We want to copy the list into a variable, but we don't want to simply reference it, we need a fresh object.
+            profilesNotStarted = JSON.parse(JSON.stringify(usersToPost))
+            profilesNotFinished = JSON.parse(JSON.stringify(usersToPost))
+            postingInterval = setInterval postingAlgorithmFunction, 60000
+            postingAlgorithmFunction()
+      else
+        logger.info '[CRON SCHEDULER] IT SEEMS THAT WE AREN\'T THE LEADER PROCESS, NO NEED TO DO ANYTHING'
+
+postingAlgorithmFunction = ->
+  logger.info "[postingAlgorithmFunction] Running posting algorithm"
+  if profilesNotFinished.filter(Boolean).length is 0
+    logger.info "[postingAlgorithmFunction] We don't have any more users we need to post tweets for, stopping interval"
+    return clearInterval postingInterval
+  else if profilesNotStarted.length is 0
+    return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like som eof the jobs just haven't finished yet"
+  queue.activeCount 'prosu_tweet_creation', (err, activeJobs) ->
+    jobsToStart = []
+    if err
+      return logger.error "[postingAlgorithmFunction] It seems that we had a problem getting the number of active jobs, skipping this interval.."
+    if activeJobs < 250 # We can queue up more jobs
+      # If we have fewer than 250 - active jobs, then we just queue the rest of the jobs
+      if 250 - activeJobs >= profilesNotStarted.length
+        jobsToStart = profilesNotStarted.splice(0, profilesNotStarted.length)
+      # Otherwise, start the amount of jobs that we can (250 - activeJobs)
+      else
+        jobsToStart = profilesNotStarted.splice(0, 250 - activeJobs)
+      a.each jobsToStart, (objectId, cb) ->
+        newJob = queue.create('prosu_tweet_creation', {
+          id: objectId
+        }).removeOnComplete(true).attempts(5).ttl(60000).save()
+        newJob.on 'complete', (result) ->
+          logger.info "[postingAlgorithm] Successfully posted image for userId #{result}"
+          `delete profilesNotFinished[profilesNotFinished.indexOf(result)]`
+        .on 'failed', (err) ->
+          logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
+          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
+          logger.error err
+        cb()
+      , (err) ->
+        if err
+          logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
+          logger.error err
+        else
+          logger.error "Successfully queued up #{jobsToStart.length} jobs"
+      # Now we can go about queueing those jobs
+    else # We can't queue up any more jobs
+      logger.info "[postingAlgorithmFunction] We are working on too many jobs right now, we can't add any more"
