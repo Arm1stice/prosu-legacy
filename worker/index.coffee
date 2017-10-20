@@ -130,7 +130,7 @@ postingAlgorithmFunction = ->
         }).removeOnComplete(true).attempts(5).ttl(60000).save()
         newJob.on 'complete', (result) ->
           logger.info "[postingAlgorithm] Successfully posted image for userId #{result}"
-          `delete profilesNotFinished[profilesNotFinished.indexOf(result)]`
+          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
         .on 'failed', (err) ->
           logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
           `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
