@@ -130,8 +130,8 @@ requestStats = (user, mode, done) ->
                 shouldSaveUser = true
                 user.name = player.name
               checksArray = user.modes[modes[mode]].checks
-              if checksArray.length isnt 0 and (new Date).getTime() - checksArray[checksArray.length - 1].dateChecked > 86400000
-                logger.info "[create_tweet.coffee] It's been more than a day since we last looked up the rank of #{player.name} for mode #{modes[mode]}. Adding to checks array"
+              if checksArray.length isnt 0 and (new Date).getTime() - checksArray[checksArray.length - 1].dateChecked > 3600000
+                logger.info "[create_tweet.coffee] It's been more than one hour since we last looked up the rank of #{player.name} for mode #{modes[mode]}. Adding to checks array"
                 request = new osuRequest {
                   player: user._id
                   data: player
