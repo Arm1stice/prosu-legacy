@@ -59,7 +59,8 @@ module.exports = (queue) ->
         return done err
       if not populated_user.osuSettings.enabled then return done "User #{userId} doesn't have tweets enabled"
       if populated_user.tweetHistory.length > 0
-        if Date.now() - (populated_user.tweetHistory[populated_user.tweetHistory.length - 1]).datePosted < 43200000 # If there was a tweet posted in the last 12 hours, something is wrong
+        # If there was a tweet posted in the last 12 hours, something is wrong. Ignore that if we are in development
+        if Date.now() - (populated_user.tweetHistory[populated_user.tweetHistory.length - 1]).datePosted < 43200000 and variables.environment isnt "development"
           return done "The user #{userId} has a recent tweet posted, something is WRONG"
       if not populated_user.osuSettings.player then return done "No player saved in this user profile"
       osuPlayer.findById populated_user.osuSettings.player._id
