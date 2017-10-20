@@ -38,8 +38,12 @@ module.exports = (queue) ->
         }
         .then (player) ->
           # The user exists
-          if player
+          if player.id
             logger.debug "Player #{job.data.username} exists"
+            # They haven't played the game mode
+            if not player.level
+              logger.debug "Player #{job.data.username} has never played #{modes[job.data.mode]}"
+              return done "It appears that #{job.data.username} has never played that game mode before"
             osuPlayer.findOne {
               userid: player.id
             }
@@ -125,7 +129,7 @@ module.exports = (queue) ->
                     return done null, newUser._id
           # The user doesn't exist
           else
-            done "The user you specified doesn't exist or hasn't played that game mode"
+            done "The user you specified doesn't exist"
         .catch (err) ->
           logger.error "An error occurred"
           logger.error err
