@@ -111,7 +111,8 @@ postingAlgorithmFunction = ->
     logger.info "[postingAlgorithmFunction] We don't have any more users we need to post tweets for, stopping interval"
     return clearInterval postingInterval
   else if profilesNotStarted.length is 0
-    return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like som eof the jobs just haven't finished yet"
+    logger.info profilesNotFinished
+    return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like some of the jobs just haven't finished yet"
   queue.activeCount 'prosu_tweet_creation', (err, activeJobs) ->
     jobsToStart = []
     if err
@@ -140,7 +141,7 @@ postingAlgorithmFunction = ->
           logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
           logger.error err
         else
-          logger.error "Successfully queued up #{jobsToStart.length} jobs"
+          logger.info "Successfully queued up #{jobsToStart.length} jobs"
       # Now we can go about queueing those jobs
     else # We can't queue up any more jobs
       logger.info "[postingAlgorithmFunction] We are working on too many jobs right now, we can't add any more"
