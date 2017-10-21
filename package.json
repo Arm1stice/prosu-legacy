@@ -1,6 +1,6 @@
 {
   "name": "prosu",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A site to post change to your osu profile daily",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Arm1stice/prosu.git"
   },
   "author": "Wyatt Calandro",
-  "license": "UNLICENSED",
+  "license": "Affero General Public License v3",
   "bugs": {
     "url": "https://github.com/Arm1stice/prosu/issues"
   },
