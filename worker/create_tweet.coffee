@@ -49,20 +49,30 @@ module.exports = (queue) ->
   # When we process the job, we are passed two variables, the job object, and a function to call when we complete our task
   queue.process 'prosu_tweet_creation', 50, (job, done) ->
     # First we have to populate the player saved in their osu!settings
+    logger.debug "[prosu_tweet_creation #{job.data.id}] Working on tweet for user #{job.data.id}"
     userId = job.data.id
     userModel.findById userId
     .populate 'osuSettings.player'
     .exec (err, populated_user) ->
       if err
-        logger.error "[prosu_tweet_creation 55] Error occured for user #{userId} while populating osuSettings.player"
+        logger.error "[prosu_tweet_creation 55 #{userId}] Error occured for user #{userId} while populating osuSettings.player"
         logger.error err
         return done err
-      if not populated_user.osuSettings.enabled then return done "User #{userId} doesn't have tweets enabled"
+      # If the tweets aren't enabled
+      if not populated_user.osuSettings.enabled
+        logger.debug "[prosu_tweet_creation 62 #{job.data.id}] User doesn't have tweets enabled, returning"
+        return done "User #{userId} doesn't have tweets enabled"
+      # Check to see if we recently posted a tweet
       if populated_user.tweetHistory.length > 0
         # If there was a tweet posted in the last 12 hours, something is wrong. Ignore that if we are in development
         if Date.now() - (populated_user.tweetHistory[populated_user.tweetHistory.length - 1]).datePosted < 43200000 and variables.environment isnt "development"
+          logger.debug "[prosu_tweet_creation 69 #{job.data.id}] User has already recently had a tweet posted. Returning..."
           return done "The user #{userId} has a recent tweet posted, something is WRONG"
-      if not populated_user.osuSettings.player then return done "No player saved in this user profile"
+
+      if not populated_user.osuSettings.player
+        logger.debug "[prosu_tweet_creation 73 #{job.data.id}] This user doesn't have an osu player saved in their profile. Returning..."
+        return done "No player saved in this user profile"
+
       osuPlayer.findById populated_user.osuSettings.player._id
       .populate "modes.#{modes[populated_user.osuSettings.mode]}.checks"
       .exec (err, player) ->
@@ -71,9 +81,11 @@ module.exports = (queue) ->
           logger.error err
           return done err
         # Check to see if we already have stats that are from the last hour
+        logger.debug "[prosu_tweet_creation 84 #{job.data.id}] Obtained osuPlayer #{player.name} from database"
         checks = player.modes[modes[populated_user.osuSettings.mode]].checks
         if (new Date).getTime() - checks[checks.length - 1].dateChecked > 3600000
-          # We don't need to check for stats again
+          logger.debug "[prosu_tweet_creation 87 #{job.data.id}] Need to get new data. Getting stats..."
+          # We need to check for stats again
           requestStats populated_user.osuSettings.player, populated_user.osuSettings.mode, (err, userId) ->
             if err
               logger.error "[prosu_tweet_creation 78] Error occured for user #{userId} while requesting stats"
@@ -85,15 +97,18 @@ module.exports = (queue) ->
                 logger.error err
                 return done err
               # Guess it worked LOL
+              logger.debug "[prosu_tweet_creation 100 #{job.data.id}] Successfully generated and posted tweet"
               return done(null, userId)
         else
-          # We need to check for their stats again
+          # We don't need to check for their stats again
+          logger.debug "[prosu_tweet_creation 103 #{job.data.id}] We have recent data, we don't need to get new data."
           createAndPostTweet populated_user, player, (err) ->
             if err
               logger.error "[prosu_tweet_creation 92] Error occured for user #{userId} while creating and posting tweet"
               logger.error err
               return done err
             # Guess it worked LOL
+            logger.debug "[prosu_tweet_creation 110 #{job.data.id}] Successfully generated and posted tweet"
             return done(null, userId)
 ## GET THE LATEST STATS FOR A SPECIFIC USER ON A SPECIFIC GAME MODE
 requestStats = (user, mode, done) ->
