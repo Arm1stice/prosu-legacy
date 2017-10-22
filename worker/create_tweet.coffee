@@ -47,7 +47,7 @@ tryLimit = (done) ->
 # Our function
 module.exports = (queue) ->
   # When we process the job, we are passed two variables, the job object, and a function to call when we complete our task
-  queue.process 'prosu_tweet_creation', 50, (job, done) ->
+  queue.process 'prosu_tweet_creation', 1, (job, done) ->
     # First we have to populate the player saved in their osu!settings
     logger.debug "[prosu_tweet_creation #{job.data.id}] Working on tweet for user #{job.data.id}"
     userId = job.data.id
