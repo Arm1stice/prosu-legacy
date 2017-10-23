@@ -105,11 +105,20 @@ cron.schedule '0 15 * * *', ->
       else
         logger.info '[CRON SCHEDULER] IT SEEMS THAT WE AREN\'T THE LEADER PROCESS, NO NEED TO DO ANYTHING'
 
+cron.schedule '0 16 * * *', ->
+  if postingInterval isnt null
+    logger.error '[4PM UTC CRON] It appears that the posting algorithm is still going for some reason. Stopping it...'
+    clearInterval postingInterval
+    postingInterval = null
+  else
+    logger.info '[4PM UTC CRON] It seems that the posting algorithm stopped correctly.'
+    
 postingAlgorithmFunction = ->
   logger.info "[postingAlgorithmFunction] Running posting algorithm"
   if profilesNotFinished.filter(Boolean).length is 0
     logger.info "[postingAlgorithmFunction] We don't have any more users we need to post tweets for, stopping interval"
-    return clearInterval postingInterval
+    clearInterval postingInterval
+    return postingInterval = null
   else if profilesNotStarted.length is 0
     logger.info profilesNotFinished
     return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like some of the jobs just haven't finished yet"
