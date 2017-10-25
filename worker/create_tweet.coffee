@@ -115,9 +115,9 @@ requestStats = (user, mode, done) ->
   tryLimit (err) ->
     if err
       if err is true
-        done "Prosu is currently under load and it is hitting its rate limit with the osu! API. Please try again later"
+        return done "Prosu is currently under load and it is hitting its rate limit with the osu! API. Please try again later"
       else
-        done err
+        return done err
     else
       osu.getUser {
         u: user.userid
@@ -241,31 +241,31 @@ createAndPostTweet = (user, player, done) ->
           return done "[createAndPostTweet] Account credentials aren't valid, no longer continuing to attempt posting tweet"
     else # We were able to authenticate
     # Create and post the tweet based off of the information we were given from our job
-    generateImage player, user.osuSettings.mode, (err, image) ->
-      if err then return done err
-      # image is our image buffer
-
-      # Upload image to twitter
-      twitterClient.post 'media/upload', {media: image}, (err, media, response) ->
+      generateImage player, user.osuSettings.mode, (err, image) ->
         if err then return done err
-        # The status we are going to post
-        statusUpdate =
-          status: "Daily osu! Stats Post powered by https://prosu.xyz #ProsuTweetPoster"
-          media_ids: media.media_id_string
-        # Post the status update
-        twitterClient.post 'statuses/update', statusUpdate, (err, tweet) ->
-          if err then return done err
-          # Push the new status to the history of statuses posted in our database
-          user.tweetHistory.push {
-            datePosted: Date.now()
-            tweetObject: tweet
-          }
-          # Save our user in the database
-          user.save (err) ->
-            ## IM NOT SURE HOW TO HANDLE THIS ERROR. LIKE, IF WE CALL AN ERROR HERE,
-            ##THE TWEET IS ALREADY POSTED SO IT ISN'T LIKE WE CAN JUST FAIL THE JOB
-            ##BECAUSE IT WOULD POST ANOTHER TWEET? GUESS WE JUST HAVE TO HOPE IT WORKS LOL
-            #if err then return done err
+        # image is our image buffer
 
-            # We have finished posting the tweet
-            return done()
+        # Upload image to twitter
+        twitterClient.post 'media/upload', {media: image}, (err, media, response) ->
+          if err then return done err
+          # The status we are going to post
+          statusUpdate =
+            status: "Daily osu! Stats Post powered by https://prosu.xyz #ProsuTweetPoster"
+            media_ids: media.media_id_string
+          # Post the status update
+          twitterClient.post 'statuses/update', statusUpdate, (err, tweet) ->
+            if err then return done err
+            # Push the new status to the history of statuses posted in our database
+            user.tweetHistory.push {
+              datePosted: Date.now()
+              tweetObject: tweet
+            }
+            # Save our user in the database
+            user.save (err) ->
+              ## IM NOT SURE HOW TO HANDLE THIS ERROR. LIKE, IF WE CALL AN ERROR HERE,
+              ##THE TWEET IS ALREADY POSTED SO IT ISN'T LIKE WE CAN JUST FAIL THE JOB
+              ##BECAUSE IT WOULD POST ANOTHER TWEET? GUESS WE JUST HAVE TO HOPE IT WORKS LOL
+              #if err then return done err
+
+              # We have finished posting the tweet
+              return done()
