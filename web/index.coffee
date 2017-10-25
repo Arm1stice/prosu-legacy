@@ -39,8 +39,6 @@ app.use require('passport').initialize() # Initializes the passport module
 app.use require('passport').session() # Initializes passport sessions
 
 app.use require('connect-flash')()
-if variables.environment is "production" or variables.environment is "staging" # If we are actually running the code on the cluster, we are going to want to force SSL
-  app.use require('express-sslify').HTTPS { trustProtoHeader: true }
 
 # This is where we setup Handlebars, our templating engine
 hbs = require 'hbs'
