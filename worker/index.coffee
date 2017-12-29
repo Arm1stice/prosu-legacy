@@ -140,28 +140,29 @@ postingAlgorithmFunction = ->
     else
       jobsToStart = profilesNotStarted.splice(0, 250 - activeJobs)
     a.each jobsToStart, (objectId, cb) ->
-      activeJobs++
-      logger.debug "Creating new job for user #{objectId}"
-      newJob = tweetQueue.createJob({
-        id: objectId
-      })
-      newJob.timeout(60000).save()
-      newJob.once 'succeeded', (result) ->
-        logger.info "[postingAlgorithm] Successfully posted image for userId #{objectId}"
-        activeJobs--
-        `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
-      newJob.once 'failed', (err) ->
-        logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
-        activeJobs--
-        `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
-        logger.error err
-      cb()
-    , (err) ->
-      if err
-        logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
-        logger.error err
-      else
-        logger.info "Successfully queued up #{jobsToStart.length} jobs"
+      process.nextTick ->
+        activeJobs++
+        logger.debug "Creating new job for user #{objectId}"
+        newJob = tweetQueue.createJob({
+          id: objectId
+        })
+        newJob.timeout(60000).save()
+        newJob.once 'succeeded', (result) ->
+          logger.info "[postingAlgorithm] Successfully posted image for userId #{objectId}"
+          activeJobs--
+          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
+        newJob.once 'failed', (err) ->
+          logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
+          activeJobs--
+          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
+          logger.error err
+        cb()
+      , (err) ->
+        if err
+          logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
+          logger.error err
+        else
+          logger.info "Successfully queued up #{jobsToStart.length} jobs"
     # Now we can go about queueing those jobs
   else # We can't queue up any more jobs
     logger.info "[postingAlgorithmFunction] We are working on too many jobs right now, we can't add any more"
