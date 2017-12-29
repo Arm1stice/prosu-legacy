@@ -44,10 +44,19 @@ tryLimit = (done) ->
       # We've hit our rate limit cap, return error = true
       else
         return done true
+
+Queue = require 'bee-queue'
+createQueue = new Queue 'create-queue', {
+  redis: require('../util/redis')
+  isWorker: true
+  removeOnSuccess: true
+  removeOnFailure: true
+  stallInterval: 15000
+}
 # Our function
-module.exports = (queue) ->
+module.exports = ->
   # When we process the job, we are passed two variables, the job object, and a function to call when we complete our task
-  queue.process 'prosu_tweet_creation', 1, (job, done) ->
+  createQueue.process 1, (job, done) ->
     # First we have to populate the player saved in their osu!settings
     logger.debug "[prosu_tweet_creation #{job.data.id}] Working on tweet for user #{job.data.id}"
     userId = job.data.id

@@ -1,6 +1,13 @@
 # Ok, this is our Kue queue, which will handle how jobs are handled by our workers
 queue = require('../util/queue')
 kue = require 'kue'
+
+Queue = require 'bee-queue'
+tweetQueue = new Queue 'create-queue', {
+  redis: require('../util/redis')
+  isWorker: false
+}
+activeJobs = 0
 # Import the logger
 logger = require('../util/logger')
 
@@ -74,13 +81,13 @@ queue.on 'error', (err) ->
   handle err
 queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
-(require './create_tweet') queue
+(require './create_tweet')()
 getIfLeader (err, result) ->
   if err
     logger.error err
 
 # Our scheduler for midnight every day
-cron.schedule '0 15 * * *', ->
+cron.schedule '0 13 * * *', ->
   logger.info '[CRON SCHEDULER] TIME TO POST TWEETS!'
   getIfLeader (err, isLeader) ->
     if err and variables.environment isnt "development"
@@ -112,45 +119,49 @@ cron.schedule '0 16 * * *', ->
     postingInterval = null
   else
     logger.info '[4PM UTC CRON] It seems that the posting algorithm stopped correctly.'
-    
+
 postingAlgorithmFunction = ->
   logger.info "[postingAlgorithmFunction] Running posting algorithm"
+  # Check to see if we have any more people who we need to post tweets for
   if profilesNotFinished.filter(Boolean).length is 0
     logger.info "[postingAlgorithmFunction] We don't have any more users we need to post tweets for, stopping interval"
     clearInterval postingInterval
     return postingInterval = null
+  # All jobs have been started, but not all have been finished yet, it seems.
   else if profilesNotStarted.length is 0
     logger.info profilesNotFinished
     return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like some of the jobs just haven't finished yet"
-  queue.activeCount 'prosu_tweet_creation', (err, activeJobs) ->
-    jobsToStart = []
-    if err
-      return logger.error "[postingAlgorithmFunction] It seems that we had a problem getting the number of active jobs, skipping this interval.."
-    if activeJobs < 250 # We can queue up more jobs
-      # If we have fewer than 250 - active jobs, then we just queue the rest of the jobs
-      if 250 - activeJobs >= profilesNotStarted.length
-        jobsToStart = profilesNotStarted.splice(0, profilesNotStarted.length)
-      # Otherwise, start the amount of jobs that we can (250 - activeJobs)
+  jobsToStart = []
+  if activeJobs < 250 # We can queue up more jobs
+    # If we have fewer than 250 - active jobs, then we just queue the rest of the jobs
+    if 250 - activeJobs >= profilesNotStarted.length
+      jobsToStart = profilesNotStarted.splice(0, profilesNotStarted.length)
+    # Otherwise, start the amount of jobs that we can (250 - activeJobs)
+    else
+      jobsToStart = profilesNotStarted.splice(0, 250 - activeJobs)
+    a.each jobsToStart, (objectId, cb) ->
+      activeJobs++
+      logger.debug "Creating new job for user #{objectId}"
+      newJob = tweetQueue.createJob({
+        id: objectId
+      })
+      newJob.timeout(60000).save()
+      newJob.once 'succeeded', (result) ->
+        logger.info "[postingAlgorithm] Successfully posted image for userId #{objectId}"
+        activeJobs--
+        `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
+      newJob.once 'failed', (err) ->
+        logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
+        activeJobs--
+        `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
+        logger.error err
+      cb()
+    , (err) ->
+      if err
+        logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
+        logger.error err
       else
-        jobsToStart = profilesNotStarted.splice(0, 250 - activeJobs)
-      a.each jobsToStart, (objectId, cb) ->
-        newJob = queue.create('prosu_tweet_creation', {
-          id: objectId
-        }).removeOnComplete(true).attempts(5).ttl(60000).save()
-        newJob.on 'complete', (result) ->
-          logger.info "[postingAlgorithm] Successfully posted image for userId #{result}"
-          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
-        .on 'failed', (err) ->
-          logger.error "[postingAlgorithm] Failed to post image for userId #{objectId}"
-          `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
-          logger.error err
-        cb()
-      , (err) ->
-        if err
-          logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
-          logger.error err
-        else
-          logger.info "Successfully queued up #{jobsToStart.length} jobs"
-      # Now we can go about queueing those jobs
-    else # We can't queue up any more jobs
-      logger.info "[postingAlgorithmFunction] We are working on too many jobs right now, we can't add any more"
+        logger.info "Successfully queued up #{jobsToStart.length} jobs"
+    # Now we can go about queueing those jobs
+  else # We can't queue up any more jobs
+    logger.info "[postingAlgorithmFunction] We are working on too many jobs right now, we can't add any more"
