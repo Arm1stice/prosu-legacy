@@ -69,17 +69,17 @@ module.exports = ->
         return done err
       # If the tweets aren't enabled
       if not populated_user.osuSettings.enabled
-        logger.debug "[prosu_tweet_creation 62 #{job.data.id}] User doesn't have tweets enabled, returning"
+        logger.error "[prosu_tweet_creation 62 #{job.data.id}] User doesn't have tweets enabled, returning"
         return done "User #{userId} doesn't have tweets enabled"
       # Check to see if we recently posted a tweet
       if populated_user.tweetHistory.length > 0
         # If there was a tweet posted in the last 12 hours, something is wrong. Ignore that if we are in development
         if Date.now() - (populated_user.tweetHistory[populated_user.tweetHistory.length - 1]).datePosted < 43200000 and variables.environment isnt "development"
-          logger.debug "[prosu_tweet_creation 69 #{job.data.id}] User has already recently had a tweet posted. Returning..."
+          #logger.debug "[prosu_tweet_creation 69 #{job.data.id}] User has already recently had a tweet posted. Returning..."
           return done "The user #{userId} has a recent tweet posted, something is WRONG"
 
       if not populated_user.osuSettings.player
-        logger.debug "[prosu_tweet_creation 73 #{job.data.id}] This user doesn't have an osu player saved in their profile. Returning..."
+        logger.error "[prosu_tweet_creation 73 #{job.data.id}] This user doesn't have an osu player saved in their profile. Returning..."
         return done "No player saved in this user profile"
 
       osuPlayer.findById populated_user.osuSettings.player._id
@@ -90,10 +90,10 @@ module.exports = ->
           logger.error err
           return done err
         # Check to see if we already have stats that are from the last hour
-        logger.debug "[prosu_tweet_creation 84 #{job.data.id}] Obtained osuPlayer #{player.name} from database"
+        #logger.debug "[prosu_tweet_creation 84 #{job.data.id}] Obtained osuPlayer #{player.name} from database"
         checks = player.modes[modes[populated_user.osuSettings.mode]].checks
         if (new Date).getTime() - checks[checks.length - 1].dateChecked > 3600000
-          logger.debug "[prosu_tweet_creation 87 #{job.data.id}] Need to get new data. Getting stats..."
+          #logger.debug "[prosu_tweet_creation 87 #{job.data.id}] Need to get new data. Getting stats..."
           # We need to check for stats again
           requestStats populated_user.osuSettings.player, populated_user.osuSettings.mode, (err, userId) ->
             if err
@@ -110,14 +110,14 @@ module.exports = ->
               return done(null, userId)
         else
           # We don't need to check for their stats again
-          logger.debug "[prosu_tweet_creation 103 #{job.data.id}] We have recent data, we don't need to get new data."
+          #logger.debug "[prosu_tweet_creation 103 #{job.data.id}] We have recent data, we don't need to get new data."
           createAndPostTweet populated_user, player, (err) ->
             if err
               logger.error "[prosu_tweet_creation 92] Error occured for user #{userId} while creating and posting tweet"
               logger.error err
               return done err
             # Guess it worked LOL
-            logger.debug "[prosu_tweet_creation 110 #{job.data.id}] Successfully generated and posted tweet"
+            #logger.debug "[prosu_tweet_creation 110 #{job.data.id}] Successfully generated and posted tweet"
             return done(null, userId)
 ## GET THE LATEST STATS FOR A SPECIFIC USER ON A SPECIFIC GAME MODE
 requestStats = (user, mode, done) ->
@@ -135,7 +135,7 @@ requestStats = (user, mode, done) ->
       .then (player) ->
         # The user exists
         if player
-          logger.debug "Player #{player.name} exists"
+          #logger.debug "Player #{player.name} exists"
           osuPlayer.findOne {
             userid: player.id
           }
@@ -148,7 +148,7 @@ requestStats = (user, mode, done) ->
               shouldSaveUser = false
               shouldSaveRequest = false
               request = null
-              logger.info "[create_tweet.coffee] User #{player.name} already exists in our database, we have to check on it"
+              #logger.info "[create_tweet.coffee] User #{player.name} already exists in our database, we have to check on it"
               # We need to check and see if the user's username might have changed since the last time we saved to the db
               if player.name isnt user.name
                 logger.info "[create_tweet.coffee] User with id #{player.id} has an older username, updating it"
@@ -156,7 +156,7 @@ requestStats = (user, mode, done) ->
                 user.name = player.name
               checksArray = user.modes[modes[mode]].checks
               if checksArray.length isnt 0 and (new Date).getTime() - checksArray[checksArray.length - 1].dateChecked > 3600000
-                logger.info "[create_tweet.coffee] It's been more than one hour since we last looked up the rank of #{player.name} for mode #{modes[mode]}. Adding to checks array"
+                #logger.info "[create_tweet.coffee] It's been more than one hour since we last looked up the rank of #{player.name} for mode #{modes[mode]}. Adding to checks array"
                 request = new osuRequest {
                   player: user._id
                   data: player
@@ -165,7 +165,7 @@ requestStats = (user, mode, done) ->
                 checksArray.push request._id
                 shouldSaveRequest = true
               else if checksArray.length is 0
-                logger.info "[create_tweet.coffee] We've never checked the rank on player #{player.name} for mode #{modes[mode]}. Adding it to database..."
+                #logger.info "[create_tweet.coffee] We've never checked the rank on player #{player.name} for mode #{modes[mode]}. Adding it to database..."
                 request = new osuRequest {
                   player: user._id
                   data: player
@@ -174,26 +174,26 @@ requestStats = (user, mode, done) ->
                 checksArray.push request._id
                 shouldSaveRequest = true
               else
-                logger.info "[create_tweet.coffee] We have a recent rank check for #{player.name} under game mode #{modes[mode]}. No need to do anything"
+                #logger.info "[create_tweet.coffee] We have a recent rank check for #{player.name} under game mode #{modes[mode]}. No need to do anything"
                 return done null, user._id
               if shouldSaveRequest
-                logger.info "[create_tweet.coffee] We have to save the request for #{player.name}. Doing so...."
+                #logger.info "[create_tweet.coffee] We have to save the request for #{player.name}. Doing so...."
                 request.save (err) ->
                   if err then return done "An error occurred while saving the stats request to the database"
-                  logger.info "[create_tweet.coffee] Saved the request for user #{player.name}. Saving user to database..."
+                  #logger.info "[create_tweet.coffee] Saved the request for user #{player.name}. Saving user to database..."
                   user.save (err) ->
-                    logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
+                    #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                     if err then return done "An error occurred while saving the new user to the database"
                     return done null, user._id
               else if shouldSaveUser
-                logger.info "[create_tweet.coffee] We need to save #{player.name} to the database. Doing so..."
+                #logger.info "[create_tweet.coffee] We need to save #{player.name} to the database. Doing so..."
                 user.save (err) ->
                   if err then return done "An error occurred while saving the new user to the database"
-                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
+                  #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                   return done null, user._id
               return done null, user._id
             else
-              logger.info "[create_tweet.coffee] User doesn't exist in our database, we have to make a new entry"
+              #logger.info "[create_tweet.coffee] User doesn't exist in our database, we have to make a new entry"
               newUser = new osuPlayer {
                 name: player.name
                 userid: player.id
@@ -217,7 +217,7 @@ requestStats = (user, mode, done) ->
                 newUser.modes[modes[mode]].checks.push request._id
                 newUser.save (err) ->
                   if err then return done "An error occurred while saving the new user to the database"
-                  logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
+                  #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                   return done null, newUser._id
         # The user doesn't exist
         else
