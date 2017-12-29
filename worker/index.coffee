@@ -87,7 +87,7 @@ getIfLeader (err, result) ->
     logger.error err
 
 # Our scheduler for midnight every day
-cron.schedule '0 19 * * *', ->
+cron.schedule '0 21 * * *', ->
   logger.info '[CRON SCHEDULER] TIME TO POST TWEETS!'
   getIfLeader (err, isLeader) ->
     if err and variables.environment isnt "development"
@@ -112,7 +112,7 @@ cron.schedule '0 19 * * *', ->
       else
         logger.info '[CRON SCHEDULER] IT SEEMS THAT WE AREN\'T THE LEADER PROCESS, NO NEED TO DO ANYTHING'
 
-cron.schedule '0 20 * * *', ->
+cron.schedule '0 22 * * *', ->
   if postingInterval isnt null
     logger.error '[4PM UTC CRON] It appears that the posting algorithm is still going for some reason. Stopping it...'
     clearInterval postingInterval
