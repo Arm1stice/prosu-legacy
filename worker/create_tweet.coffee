@@ -191,7 +191,8 @@ requestStats = (user, mode, done) ->
                   if err then return done "An error occurred while saving the new user to the database"
                   #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
                   return done null, user._id
-              return done null, user._id
+              else
+                return done null, user._id
             else
               #logger.info "[create_tweet.coffee] User doesn't exist in our database, we have to make a new entry"
               newUser = new osuPlayer {

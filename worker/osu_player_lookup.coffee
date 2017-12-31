@@ -99,7 +99,8 @@ module.exports = (queue) ->
                     if err then return done "An error occurred while saving the new user to the database"
                     logger.info "[osu_player_lookup.coffee] Saved #{player.name} to database. Job #{job.id} completed"
                     return done null, user._id
-                return done null, user._id
+                else
+                  return done null, user._id
               else
                 logger.info "[osu_player_lookup.coffee] User doesn't exist in our database, we have to make a new entry"
                 newUser = new osuPlayer {

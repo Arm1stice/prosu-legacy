@@ -87,7 +87,7 @@ getIfLeader (err, result) ->
     logger.error err
 
 # Our scheduler for midnight every day
-cron.schedule '40 8 * * *', ->
+cron.schedule '46 8 * * *', ->
   logger.info '[CRON SCHEDULER] TIME TO POST TWEETS!'
   getIfLeader (err, isLeader) ->
     if err and variables.environment isnt "development"
