@@ -87,7 +87,7 @@ module.exports = (ctx, newCheck, oldCheck, done) ->
     winnerData[type] = {}
     winnerData[type].value = _.get(newCheck.data, type)
     winnerData[type].change = Math.abs(Number(_.get(newCheck.data, type)) - Number(_.get(oldCheck.data, type)))
-    if type is 'accuracy' or type is 'level'
+    if type is 'accuracy' or type is 'level' or type is 'pp.raw'
       winnerData[type].change = Math.round10(winnerData[type].change, -2)
     if Number(_.get(newCheck.data, type)) > Number(_.get(oldCheck.data, type))
       winnerData[type].good = 2

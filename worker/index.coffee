@@ -87,7 +87,7 @@ getIfLeader (err, result) ->
     logger.error err
 
 # Our scheduler for midnight every day
-cron.schedule '0 21 * * *', ->
+cron.schedule '40 8 * * *', ->
   logger.info '[CRON SCHEDULER] TIME TO POST TWEETS!'
   getIfLeader (err, isLeader) ->
     if err and variables.environment isnt "development"
@@ -157,11 +157,11 @@ postingAlgorithmFunction = ->
           `delete profilesNotFinished[profilesNotFinished.indexOf(objectId)]`
           logger.error err
         cb()
-      , (err) ->
-        if err
-          logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
-          logger.error err
-        else
+    , (err) ->
+      if err
+        logger.error '[postingAlgorithmFunction] Error occurred while queueing up the new jobs'
+        logger.error err
+      else
           logger.info "Successfully queued up #{jobsToStart.length} jobs"
     # Now we can go about queueing those jobs
   else # We can't queue up any more jobs
