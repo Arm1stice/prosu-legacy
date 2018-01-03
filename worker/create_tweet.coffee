@@ -33,17 +33,17 @@ limiter = new Limiter
   db: (require '../util/redis')
   max: 250 # 250 requests
   duration: 60000 # Per 60 seconds
-tryLimit = (done) ->
+tryLimit = (finishLimit) ->
   limiter.get (err, limit) ->
     if err
       logger.error "[tryLimit] An error occured while getting the rate limit"
-      return done err # Return error
+      return finishLimit err # Return error
     else
       if limit.remaining
-        return done() # Call the function
+        return finishLimit() # Call the function
       # We've hit our rate limit cap, return error = true
       else
-        return done true
+        return finishLimit true
 
 Queue = require 'bee-queue'
 createQueue = new Queue 'create-queue', {
@@ -95,19 +95,21 @@ module.exports = ->
         if (new Date).getTime() - checks[checks.length - 1].dateChecked > 3600000
           #logger.debug "[prosu_tweet_creation 87 #{job.data.id}] Need to get new data. Getting stats..."
           # We need to check for stats again
-          requestStats populated_user.osuSettings.player, populated_user.osuSettings.mode, (err, userId) ->
+          requestStats populated_user.osuSettings.player, populated_user.osuSettings.mode, (err, user) ->
             if err
               logger.error "[prosu_tweet_creation 78] Error occured for user #{userId} while requesting stats"
               logger.error err
               return done err
-            createAndPostTweet populated_user, player, (err) ->
-              if err
-                logger.error "[prosu_tweet_creation 83] Error occured for user #{userId} while creating and posting tweet"
-                logger.error err
-                return done err
-              # Guess it worked LOL
-              logger.debug "[prosu_tweet_creation 100 #{job.data.id}] Successfully generated and posted tweet"
-              return done(null, userId)
+            osuPlayer.findById populated_user.osuSettings.player._id
+            .populate "modes.#{modes[populated_user.osuSettings.mode]}.checks"
+            .exec (err, newPlayer) ->
+              createAndPostTweet populated_user, newPlayer, (err) ->
+                if err
+                  logger.error "[prosu_tweet_creation 83] Error occured for user #{userId} while creating and posting tweet"
+                  logger.error err
+                  return done err
+                # Guess it worked LOL
+                return done(null, "HELLO")
         else
           # We don't need to check for their stats again
           #logger.debug "[prosu_tweet_creation 103 #{job.data.id}] We have recent data, we don't need to get new data."
@@ -117,16 +119,15 @@ module.exports = ->
               logger.error err
               return done err
             # Guess it worked LOL
-            #logger.debug "[prosu_tweet_creation 110 #{job.data.id}] Successfully generated and posted tweet"
-            return done(null, userId)
+            return done(null, "HELLO")
 ## GET THE LATEST STATS FOR A SPECIFIC USER ON A SPECIFIC GAME MODE
-requestStats = (user, mode, done) ->
+requestStats = (user, mode, finishedCheckingStats) ->
   tryLimit (err) ->
     if err
       if err is true
-        return done "Prosu is currently under load and it is hitting its rate limit with the osu! API. Please try again later"
+        return finishedCheckingStats "Prosu is currently under load and it is hitting its rate limit with the osu! API. Please try again later"
       else
-        return done err
+        return finishedCheckingStats err
     else
       osu.getUser {
         u: user.userid
@@ -143,7 +144,7 @@ requestStats = (user, mode, done) ->
           .exec (err, user) ->
             if err
               logger.error "[create_tweet.coffee] An error occured while looking up a player in osuPlayer"
-              return done err # If there was a database error, then we immediately return it
+              return finishedCheckingStats err # If there was a database error, then we immediately return it
             if user # The user already exists in our database
               shouldSaveUser = false
               shouldSaveRequest = false
@@ -175,24 +176,24 @@ requestStats = (user, mode, done) ->
                 shouldSaveRequest = true
               else
                 #logger.info "[create_tweet.coffee] We have a recent rank check for #{player.name} under game mode #{modes[mode]}. No need to do anything"
-                return done null, user._id
+                return finishedCheckingStats null, user
               if shouldSaveRequest
                 #logger.info "[create_tweet.coffee] We have to save the request for #{player.name}. Doing so...."
                 request.save (err) ->
-                  if err then return done "An error occurred while saving the stats request to the database"
+                  if err then return finishedCheckingStats "An error occurred while saving the stats request to the database"
                   #logger.info "[create_tweet.coffee] Saved the request for user #{player.name}. Saving user to database..."
                   user.save (err) ->
                     #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
-                    if err then return done "An error occurred while saving the new user to the database"
-                    return done null, user._id
+                    if err then return finishedCheckingStats "An error occurred while saving the new user to the database"
+                    return finishedCheckingStats null, user
               else if shouldSaveUser
                 #logger.info "[create_tweet.coffee] We need to save #{player.name} to the database. Doing so..."
                 user.save (err) ->
-                  if err then return done "An error occurred while saving the new user to the database"
+                  if err then return finishedCheckingStats "An error occurred while saving the new user to the database"
                   #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
-                  return done null, user._id
+                  return finishedCheckingStats null, user
               else
-                return done null, user._id
+                return finishedCheckingStats null, user
             else
               #logger.info "[create_tweet.coffee] User doesn't exist in our database, we have to make a new entry"
               newUser = new osuPlayer {
@@ -214,22 +215,22 @@ requestStats = (user, mode, done) ->
                 dateChecked: (new Date).getTime()
               }
               request.save (err) ->
-                if err then return done "An error occurred while saving the stats request to the database"
+                if err then return finishedCheckingStats "An error occurred while saving the stats request to the database"
                 newUser.modes[modes[mode]].checks.push request._id
                 newUser.save (err) ->
-                  if err then return done "An error occurred while saving the new user to the database"
+                  if err then return finishedCheckingStats "An error occurred while saving the new user to the database"
                   #logger.info "[create_tweet.coffee] Saved #{player.name} to database. Job completed"
-                  return done null, newUser._id
+                  return finishedCheckingStats null, newUser
         # The user doesn't exist
         else
-          done "The user you specified doesn't exist or hasn't played that game mode"
+          finishedCheckingStats "The user you specified doesn't exist or hasn't played that game mode"
       .catch (err) ->
         logger.error "An error occurred"
         logger.error err
-        done err, null # Return err, null user
+        finishedCheckingStats err, null # Return err, null user
 
 ## GENERATE THE IMAGE AND POST THE TWEET TO THE USER'S TWITTER ##
-createAndPostTweet = (user, player, done) ->
+createAndPostTweet = (user, player, finishedPosting) ->
   # First, create a twitter client based off of the credentials we have stored
   twitterClient = new twitter {
     consumer_key: variables.twitterConsumerKey
@@ -252,20 +253,21 @@ createAndPostTweet = (user, player, done) ->
     else # We were able to authenticate
     # Create and post the tweet based off of the information we were given from our job
       generateImage player, user.osuSettings.mode, (err, image) ->
-        if err then return done err
+        if err then return finishedPosting err
         # image is our image buffer
 
         # Upload image to twitter
         twitterClient.post 'media/upload', {media: image}, (err, media, response) ->
-          if err then return done err
+          if err then return finishedPosting err
           # The status we are going to post
           statusUpdate =
             status: "Daily osu! Stats Post powered by https://prosu.xyz #ProsuTweetPoster"
             media_ids: media.media_id_string
           # Post the status update
           twitterClient.post 'statuses/update', statusUpdate, (err, tweet) ->
-            if err then return done err
+            if err then return finishedPosting err
             # Push the new status to the history of statuses posted in our database
+            logger.info "[create_tweet.coffee] Created tweet for user #{user.id}: https://twitter.com/#{tweet.user.screen_name}/status/#{tweet.id_str}"
             user.tweetHistory.push {
               datePosted: Date.now()
               tweetObject: tweet
@@ -278,4 +280,5 @@ createAndPostTweet = (user, player, done) ->
               #if err then return done err
 
               # We have finished posting the tweet
-              return done()
+              logger.info "Calling back to function"
+              return finishedPosting(null)
