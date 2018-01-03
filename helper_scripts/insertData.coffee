@@ -1,6 +1,6 @@
 osuPlayer = (require '../database').models.osuPlayer
 osuRequest = (require '../database').models.osuRequest
-osuPlayer.findOne {name: "Arm1stice"}, (err, player) ->
+osuPlayer.findOne({name: "Arm1stice"}).populate('modes.mania.checks').exec (err, player) ->
   check = {
     player: player._id,
     data: {
@@ -24,7 +24,8 @@ osuPlayer.findOne {name: "Arm1stice"}, (err, player) ->
     dateChecked: 1506631550640
   }
   request = new osuRequest check
-  player.modes.mania.checks.push(request)
-  player.save (err) ->
-    if err then throw err
-    process.exit 0
+  request.save (err) ->
+    player.modes.mania.checks.push(request._id)
+    player.save (err) ->
+      if err then throw err
+      process.exit 0
