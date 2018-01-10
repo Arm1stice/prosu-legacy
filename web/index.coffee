@@ -20,7 +20,7 @@ app.use gracefulExit.middleware app
 
 app.set 'trust proxy', true
 
-# If we are in production, then we will track the total number of requests every minute
+# If we are in production, then we will track tqhe total number of requests every minute
 if variables.environment is "production"
   app.use (require './datadog').middleware
 # This is where we import all of our middleware

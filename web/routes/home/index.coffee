@@ -1,6 +1,14 @@
 variables = require '../../../util/variables'
 path = require 'path'
 userModel = require('../../../database/index').models.userModel
+userCount = 0
+handle = (require '../../../util/rollbar').handle
+getUserCount = ->
+  userModel.count {}, (err, count) ->
+    if err then return handle err
+    userCount = count
+getUserCount()
+setInterval getUserCount, 60000
 module.exports = (app) ->
   home = (req, res, next) ->
     modes = [
@@ -43,6 +51,7 @@ module.exports = (app) ->
               inputSettings: user.osuSettings
               error: error
               success: success
+              userCount: userCount
             }
       else
         res.render (path.join __dirname, pageToRender), {
@@ -53,7 +62,8 @@ module.exports = (app) ->
           modes: modes
           inputSettings: null
           error: error
-          sucess: success
+          success: success
+          userCount: userCount
         }
     # If not, we send the template a null value
     else
@@ -65,5 +75,6 @@ module.exports = (app) ->
         inputSettings: null
         error: error
         success: success
+        userCount: userCount
       }
   app.get '/', home
