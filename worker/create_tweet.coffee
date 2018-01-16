@@ -247,9 +247,9 @@ createAndPostTweet = (user, player, finishedPosting) ->
       user.osuSettings.enabled = false
       user.save (err) ->
         if err
-          return done err
+          return finishedPosting err
         else
-          return done "[createAndPostTweet] Account credentials aren't valid, no longer continuing to attempt posting tweet"
+          return finishedPosting "[createAndPostTweet] Account credentials aren't valid, no longer continuing to attempt posting tweet"
     else # We were able to authenticate
     # Create and post the tweet based off of the information we were given from our job
       generateImage player, user.osuSettings.mode, (err, image) ->
