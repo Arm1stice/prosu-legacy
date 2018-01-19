@@ -25,15 +25,6 @@ module.exports.sessionSecret = sessionSecret
 # Environment
 environment = if process.env.NODE_ENV then process.env.NODE_ENV else "development"
 module.exports.environment = environment
-# Let's Encrypt
-le = if process.env.LETS_ENCRYPT then process.env.LETS_ENCRYPT else false
-module.exports.le = le
-# Let's Encrypt Path
-le_p = if process.env.LETS_ENCRYPT_PATH then process.env.LETS_ENCRYPT_PATH else false
-module.exports.le_p = le_p
-# Let's Encrypt Return
-le_r = if process.env.LETS_ENCRYPT_RETURN then process.env.LETS_ENCRYPT_RETURN else false
-module.exports.le_r = le_r
 # Twitter Consumer Key
 twitter_consumer_key = if process.env.TWITTER_CONSUMER_KEY then process.env.TWITTER_CONSUMER_KEY else false
 module.exports.twitterConsumerKey = twitter_consumer_key
@@ -49,6 +40,5 @@ module.exports.osuApiKey = osu_api_key
 # Redis URL
 redis_url = if process.env.REDIS_URL then process.env.REDIS_URL else 'redis://localhost'
 module.exports.redisUrl = redis_url
-# Datadog API Key
-datadog_api_key = if process.env.DATADOG_API_KEY then process.env.DATADOG_API_KEY else null
-module.exports.datadogApiKey = datadog_api_key
+# Maintenance Mode
+module.exports.maintenanceMode = process.env.MAINTENANCE || false
