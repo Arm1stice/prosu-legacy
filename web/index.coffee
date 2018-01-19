@@ -49,12 +49,18 @@ app.engine 'hbs', hbs.__express
 # Here, we connect our static content to express
 app.use express.static require('path').join __dirname, "static"
 
-# Setup Let's Encrypt
-if variables.le is "true"
-  logger.debug "Setup LetsEncrypt Path"
-  app.use variables.le_p, (req, res) ->
-    res.end variables.le_r
-
+# Setup Maintenance Middleware before the rest of our routes
+app.use '/', (req, res, next) ->
+  if variables.maintenanceMode
+    res.render require('path').join(__dirname, './maintenanceMode.hbs'), {
+      title: "Prosu"
+      hostname: variables.domain
+      user: req.user
+      isAuthenticated: req.isAuthenticated()
+      inputSettings: null
+    }
+  else
+    next()
 # All of our routes are handled in routes/ so this is where we call the function to set those up
 (require './routes/index') app
 
