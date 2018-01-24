@@ -14,6 +14,9 @@ variables = require '../util/variables'
 # Logger
 logger = require '../util/logger'
 
+# Universal Analytics
+ua = require 'universal-analytics'
+
 # Use express-graceful-shutdown to handle our graceful shutdowns
 gracefulExit = require 'express-graceful-exit'
 app.use gracefulExit.middleware app
@@ -45,6 +48,9 @@ hbs = require 'hbs'
 hbs.registerPartials (require 'path').join __dirname, "partials"
 app.set 'view engine', 'hbs'
 app.engine 'hbs', hbs.__express
+
+# Setup Universal Analytics
+app.use ua.middleware variables.googleAnalytics, cookieName: '_ga'
 
 # Here, we connect our static content to express
 app.use express.static require('path').join __dirname, "static"

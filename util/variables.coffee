@@ -42,3 +42,5 @@ redis_url = if process.env.REDIS_URL then process.env.REDIS_URL else 'redis://lo
 module.exports.redisUrl = redis_url
 # Maintenance Mode
 module.exports.maintenanceMode = process.env.MAINTENANCE || false
+# Google Analytics
+module.exports.googleAnalytics = process.env.GOOGLE_ANALYTICS || null
