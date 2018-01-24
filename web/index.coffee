@@ -14,12 +14,6 @@ variables = require '../util/variables'
 # Logger
 logger = require '../util/logger'
 
-<<<<<<< HEAD
-# Universal Analytics
-expressGa = require 'express-ga-middleware'
-
-=======
->>>>>>> parent of 399cca9... Add universal analytics middleware
 # Use express-graceful-shutdown to handle our graceful shutdowns
 gracefulExit = require 'express-graceful-exit'
 app.use gracefulExit.middleware app
