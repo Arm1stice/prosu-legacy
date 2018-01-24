@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
     # Install Redis
     apt-get install -y redis-server
     # Install nodejs
-    curl https://deb.nodesource.com/setup_7.x | bash
+    curl https://deb.nodesource.com/setup_9.x | bash
     apt-get install -y nodejs
     apt-get install -y build-essential
     # Install cairo
