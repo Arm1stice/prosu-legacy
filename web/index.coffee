@@ -15,7 +15,7 @@ variables = require '../util/variables'
 logger = require '../util/logger'
 
 # Universal Analytics
-expressGa = require 'express-ga-middleware'
+proxy = require 'express-http-proxy'
 
 # Use express-graceful-shutdown to handle our graceful shutdowns
 gracefulExit = require 'express-graceful-exit'
@@ -48,9 +48,18 @@ hbs = require 'hbs'
 hbs.registerPartials (require 'path').join __dirname, "partials"
 app.set 'view engine', 'hbs'
 app.engine 'hbs', hbs.__express
+hbs.localsAsTemplateData app
+app.locals.googleAnalytics = variables.googleAnalytics
+app.locals.domain = variables.domain
+# Setup Google-Analytics Proxy server
+getIpFromReq = (req) ->
+  # get the client's IP address
+  bareIP = ':' + (req.connection.socket and req.connection.socket.remoteAddress or req.headers['x-forwarded-for'] or req.connection.remoteAddress or '')
+  (bareIP.match(/:([^:]+)$/) or [])[1] or '127.0.0.1'
 
-# Setup Universal Analytics
-app.use expressGa variables.googleAnalytics
+app.use '/analytics', proxy('www.google-analytics.com', proxyReqPathResolver: (req) ->
+  req.url + (if req.url.indexOf('?') == -1 then '?' else '&') + 'uip=' + encodeURIComponent(getIpFromReq(req))
+)
 
 # Here, we connect our static content to express
 app.use express.static require('path').join __dirname, "static"
