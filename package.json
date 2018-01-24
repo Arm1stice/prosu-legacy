@@ -46,6 +46,7 @@
     "request": "^2.81.0",
     "rollbar": "^2.3.3",
     "twitter": "^1.7.1",
+    "universal-analytics": "^0.4.16",
     "winston": "^2.3.1"
   }
 }
