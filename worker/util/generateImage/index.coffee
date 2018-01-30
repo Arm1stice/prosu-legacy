@@ -63,7 +63,8 @@ module.exports = (osuPlayer, mode, done) ->
         else
           done "Something went wrong, the mode isn't being handled correctly"
     avatarImage.onerror = (err) ->
-      throw err
+      logger.warn "Error loading profile picture as source. Loading guest avatar. (#{osuPlayer.name})"
+      avatarImage.src = guestAvatar
     avatarImage.onload = ->
       fs.readFile (path.join __dirname, "../../flags/#{data.country}.png"), (err, flag) ->
         if err
