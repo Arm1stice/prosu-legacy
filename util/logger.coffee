@@ -18,7 +18,8 @@ if variables.papertrailEnabled
   else
     winstonPapertrail = new winston.transports.Papertrail {
       host: variables.papertrailHost,
-      port: variables.papertrailPort
+      port: variables.papertrailPort,
+      program: process.env.PROCTYPE
     }
     winstonPapertrail.on 'error', (err) ->
       console.error "WINSTON PAPERTRAIL GAVE AN ERROR:"
