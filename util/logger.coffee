@@ -17,12 +17,12 @@ if variables.papertrailEnabled
     console.error "Papertrail is enabled but the PAPERTRAIL_PORT variable isn't set. Disabling Papertrail"
   else
     winstonPapertrail = new winston.transports.Papertrail {
-	     host: variables.papertrailHost,
-	     port: variables.papertrailPort
+      host: variables.papertrailHost,
+      port: variables.papertrailPort
     }
     winstonPapertrail.on 'error', (err) ->
-	     console.error "WINSTON PAPERTRAIL GAVE AN ERROR:"
-       console.error err
+      console.error "WINSTON PAPERTRAIL GAVE AN ERROR:"
+      console.error err
     transportsList.push winstonPapertrail
 
 logger = new winston.Logger({
