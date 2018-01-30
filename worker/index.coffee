@@ -82,9 +82,11 @@ queue.on 'error', (err) ->
 queue.watchStuckJobs 1000
 (require './osu_player_lookup') queue
 (require './create_tweet')()
-getIfLeader (err, result) ->
-  if err
-    logger.error err
+setTimeout ->
+  getIfLeader (err, result) ->
+    if err
+      logger.error err
+, 5000
 
 # Our scheduler for midnight every day
 cron.schedule '0 12 * * *', ->
