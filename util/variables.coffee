@@ -42,3 +42,7 @@ redis_url = if process.env.REDIS_URL then process.env.REDIS_URL else 'redis://lo
 module.exports.redisUrl = redis_url
 # Maintenance Mode
 module.exports.maintenanceMode = process.env.MAINTENANCE || false
+# papertrail
+module.exports.papertrailEnabled = if process.env.PAPERTRAIL_ENABLED then true else false
+module.exports.papertrailHost = process.env.PAPERTRAIL_HOST || null
+module.exports.papertrailPort = process.env.PAPERTRAIL_PORT || null
