@@ -1,14 +1,30 @@
 variables = require '../../../util/variables'
 path = require 'path'
+a = require 'async'
+cron = require 'node-cron'
 userModel = require('../../../database/index').models.userModel
 userCount = 0
+tweetCount = 0
 handle = (require '../../../util/rollbar').handle
+
+# Get number of users
 getUserCount = ->
   userModel.count {}, (err, count) ->
     if err then return handle err
     userCount = count
 getUserCount()
 setInterval getUserCount, 60000
+
+# Get number of tweets posted
+getTweetCount = ->
+  userModel.find {}, (err, users) ->
+    if err then throw err
+    a.eachSeries users, (user, cb) ->
+      tweetCount += user.tweetHistory.length
+      cb()
+getTweetCount()
+cron.schedule '*/5 12 * * *', getTweetCount
+
 module.exports = (app) ->
   home = (req, res, next) ->
     modes = [
