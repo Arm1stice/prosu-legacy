@@ -68,6 +68,7 @@ module.exports = (app) ->
               error: error
               success: success
               userCount: userCount
+              tweetCount: tweetCount.toLocaleString()
             }
       else
         res.render (path.join __dirname, pageToRender), {
@@ -80,6 +81,7 @@ module.exports = (app) ->
           error: error
           success: success
           userCount: userCount
+          tweetCount: tweetCount.toLocaleString()
         }
     # If not, we send the template a null value
     else
@@ -92,5 +94,6 @@ module.exports = (app) ->
         error: error
         success: success
         userCount: userCount
+        tweetCount: tweetCount.toLocaleString()
       }
   app.get '/', home
