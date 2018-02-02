@@ -17,6 +17,7 @@ setInterval getUserCount, 60000
 
 # Get number of tweets posted
 getTweetCount = ->
+  tweetCount = 0
   userModel.find {}, (err, users) ->
     if err then throw err
     a.eachSeries users, (user, cb) ->
