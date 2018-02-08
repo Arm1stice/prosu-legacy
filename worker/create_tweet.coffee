@@ -280,5 +280,4 @@ createAndPostTweet = (user, player, finishedPosting) ->
               #if err then return done err
 
               # We have finished posting the tweet
-              logger.info "Calling back to function"
               return finishedPosting(null)
