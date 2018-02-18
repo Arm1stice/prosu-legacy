@@ -1,0 +1,17 @@
+{
+  "tests": "./test/*.js",
+  "timeout": 10000,
+  "output": "./output",
+  "helpers": {
+    "Puppeteer": {
+      "url": "http://127.0.0.1:8080",
+      "show": false
+    }
+  },
+  "include": {
+    "I": "./test/steps_file.js"
+  },
+  "bootstrap": false,
+  "mocha": {},
+  "name": "prosu"
+}

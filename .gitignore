@@ -6,3 +6,4 @@ helper_scripts/image.png
 .env
 .idea/*
 .DS_Store
+output/*
