@@ -4,7 +4,7 @@
   "description": "A site to post change to your osu profile daily",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/codeceptjs run --steps"
   },
   "repository": {
     "type": "git",
@@ -51,6 +51,8 @@
     "winston-papertrail": "^1.0.5"
   },
   "devDependencies": {
-    "coffee-script": "^1.12.7"
+    "codeceptjs": "^1.1.5",
+    "coffee-script": "^1.12.7",
+    "puppeteer": "^1.1.0"
   }
 }

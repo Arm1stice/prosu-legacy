@@ -1,5 +1,5 @@
 
-Feature('Home Page (not logged in)');
+Feature('Site functions when not logged in');
 
 Scenario('Home page works properly when logged out', (I) => {
   // Opens home page
@@ -11,5 +11,9 @@ Scenario('Home page works properly when logged out', (I) => {
   // Make sure that there are only 0 users in database and that 0 tweets have been posted
   I.see("Join 0 other users today!")
   I.see("0 tweets posted so far!")
-  end()
+  // Make sure we see that there is a button to log in
+  I.seeTextEquals("SIGN IN WITH TWITTER", "button.btn")
+  I.seeTextEquals("Sign in with Twitter", "//body/nav/div/div/ul/li/a")
+  // Make sure we see the link for the Privacy Policy
+  I.see("Privacy Policy")
 });
