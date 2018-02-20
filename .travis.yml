@@ -28,8 +28,6 @@ script:
   - npm test
 deploy:
   provider: heroku
-  app:
-    master: prosu
-    develop: prosu-staging
+  app: prosu-staging
   api_key:
     secure: CGCxVrwaB60vF+jVCoMEJKeSyIj700izBBIrFzPFnWo4N6XHCteUfTkW3vqzzaPUr5qm4SVCV/Fq2OlZ0F/Jcul9LKA+F+Wwe9MQcmPn39s9jsckXjnLIXUynbOVV2EXoEmiYDpepMTqa8ZjOVIyUG3OEPOcdVzymisfatRU1kAEfGFOoGwUYXJGqUMkZXmgnZdQ++WJMGf+w2G3jfxNaJBuqDKFArXpqvXoasElGRoSIlpjZjcZqzdg8YoR1BsK4HRsD6VIvXQiSCYZskHmVpfQPzWZlll5VjhzyBR1MkiAitW3cD91PGKJTzpQJrS2cUSi6GpJ9MXVU+jIxoR0ArL3WnOpsMr1fBkc4iDqcWjI2p/kS6WjxqwKNagdqyyNMTpoyLbnR1d+WibjdalrzUMeVqQOeqsAz1bF0RVVeYJuo75XEC34DxdgYCH7MmitrSzVultfm6Rz/aydQMeJVpGn1bMKrWFherCiPNlP8DmxRCOWPTs6bWgXEVy60nVUCAKVkrDNB0UIV64cEIq7sUFCt6F2ZuC0+iHJvrMUJYbtC4CKGEJH5WVBo7oyiUpS/5BOijYcDxLNF/ZF+d+C61ral4PnFm1XQ0GLFBm5bLuDcqwfqJZOUu+YDTkC+iwiblLl2TsNjPL9Q+UGSG2M8Ho1knLDifzTxW2TcnA0LTY=
