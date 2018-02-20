@@ -17,3 +17,17 @@ Scenario('Home page works properly when logged out', (I) => {
   // Make sure we see the link for the Privacy Policy
   I.see("Privacy Policy")
 });
+
+Scenario('Privacy policy can be accessed', (I) => {
+  // Home page
+  I.amOnPage('/')
+  // See link
+  I.see("Privacy Policy")
+  // Click privacy policy
+  I.click("Privacy Policy")
+  // Wait for URL change
+  I.seeInCurrentUrl("/privacy")
+  // Make sure page is correct
+  I.see("Privacy Policy")
+  I.see("When you login to Prosu using your Twitter account")
+})

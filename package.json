@@ -4,7 +4,7 @@
   "description": "A site to post change to your osu profile daily",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/codeceptjs run --steps"
+    "test": "./node_modules/.bin/codeceptjs run"
   },
   "repository": {
     "type": "git",
