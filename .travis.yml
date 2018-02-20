@@ -12,6 +12,9 @@ addons:
     - build-essential
     - g++
     - libnss3
+services:
+  - redis-server
+  - mongodb
 cache:
   directories:
     - node_modules
