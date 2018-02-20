@@ -25,4 +25,5 @@ before_install:
 script:
   - node index.js web &
   - node index.js worker &
+  - sleep 5
   - npm test
