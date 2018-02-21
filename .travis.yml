@@ -26,6 +26,8 @@ script:
   - node index.js worker &
   - sleep 10
   - npm test
+notifications:
+  email: false
 deploy:
   provider: heroku
   app: prosu-staging
