@@ -73,13 +73,13 @@ postingAlgorithmFunction = ->
     logger.info profilesNotFinished
     return logger.info "[postingAlgorithmFunction] We don't have any more jobs to start, but it looks like some of the jobs just haven't finished yet"
   jobsToStart = []
-  if activeJobs < 250 # We can queue up more jobs
-    # If we have fewer than 250 - active jobs, then we just queue the rest of the jobs
-    if 250 - activeJobs >= profilesNotStarted.length
+  if activeJobs < 150 # We can queue up more jobs
+    # If we have fewer than 120 - active jobs, then we just queue the rest of the jobs
+    if 150 - activeJobs >= profilesNotStarted.length
       jobsToStart = profilesNotStarted.splice(0, profilesNotStarted.length)
-    # Otherwise, start the amount of jobs that we can (250 - activeJobs)
+    # Otherwise, start the amount of jobs that we can (150 - activeJobs)
     else
-      jobsToStart = profilesNotStarted.splice(0, 250 - activeJobs)
+      jobsToStart = profilesNotStarted.splice(0, 150 - activeJobs)
     a.each jobsToStart, (objectId, cb) ->
       process.nextTick ->
         activeJobs++

@@ -49,6 +49,7 @@ Queue = require 'bee-queue'
 createQueue = new Queue 'create-queue', {
   redis: require('../util/redis')
   isWorker: true
+  delayedDebounce: 500
   removeOnSuccess: true
   removeOnFailure: true
   stallInterval: 15000

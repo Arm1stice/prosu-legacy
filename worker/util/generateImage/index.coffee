@@ -102,6 +102,11 @@ module.exports = (osuPlayer, mode, done) ->
     ## DRAW COUNTRY FLAG ON BOTTOM LEFT
     ctx.drawImage flagImage, 25, 115, 45, 30
 
+    # Remove images from memory
+    avatarImage = null
+    modeImage = null
+    flagImage = null
+    
     ## DRAW INFO REGARDING PLAYER NAME AND STUFF
     ctx.font = '20px Impact' # Set the font
     ctx.fillStyle = 'white' # Set the font color
