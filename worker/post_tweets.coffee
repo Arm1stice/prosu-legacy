@@ -67,7 +67,9 @@ postingAlgorithmFunction = ->
   # Check to see if we have any more people who we need to post tweets for
   if profilesNotFinished.filter(Boolean).length is 0
     logger.info "[postingAlgorithmFunction] We don't have any more users we need to post tweets for, exiting"
-    return process.exit 0
+    return setTimeout ->
+      process.exit 0
+    , 3000
   # All jobs have been started, but not all have been finished yet, it seems.
   else if profilesNotStarted.length is 0
     logger.info profilesNotFinished
