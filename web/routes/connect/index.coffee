@@ -35,7 +35,11 @@ module.exports = (app) ->
             done null, user
           else # It changed, update database
             logger.info "[connect/index.coffee] Twitter user information needs to be updated for #{user._id}, as we have outdated tokens in our database."
-            user.twitter.profile = profile
+            user.twitter.profile = {
+              username: profile.username,
+              displayName: profile.displayName,
+              id: profile.id
+            }
             user.twitter.token = token
             user.twitter.tokenSecret = tokenSecret
             user.save (err) ->
@@ -48,7 +52,10 @@ module.exports = (app) ->
         else
           user = new userModel {
             twitter:
-              profile: profile
+              profile:
+                username: profile.username,
+                displayName: profile.displayName,
+                id: profile.id
               token: token
               tokenSecret: tokenSecret
           }

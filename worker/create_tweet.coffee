@@ -271,7 +271,9 @@ createAndPostTweet = (user, player, finishedPosting) ->
             logger.info "[create_tweet.coffee] Created tweet for user #{user.id}: https://twitter.com/#{tweet.user.screen_name}/status/#{tweet.id_str}"
             user.tweetHistory.push {
               datePosted: Date.now()
-              tweetObject: tweet
+              tweetObject: {
+                id: tweet.id
+              }
             }
             # Save our user in the database
             user.save (err) ->
