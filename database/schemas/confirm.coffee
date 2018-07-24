@@ -10,5 +10,5 @@ confirmSchema = new Schema({
     lastResent:
       type: Number
       default: null
-})
+}, { usePushEach: true })
 module.exports = confirmSchema

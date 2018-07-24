@@ -7,5 +7,5 @@ osuRequestSchema = new Schema({
       ref: 'osuPlayerModel'
     dateChecked: Number
     data: Object
-})
+}, { usePushEach: true })
 module.exports = osuRequestSchema

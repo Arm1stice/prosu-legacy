@@ -6,11 +6,11 @@ twitterSchema = new Schema({
   profile: Object
   token: String
   tokenSecret: String
-})
-tweetSchema = new Schema {
+}, { usePushEach: true })
+tweetSchema = new Schema({
   datePosted: Number
   tweetObject: Object
-}
+}, { usePushEach: true })
 userSchema = new Schema({
   osuSettings:
     player:
@@ -26,5 +26,5 @@ userSchema = new Schema({
   tweetHistory: [tweetSchema]
   twitter:
     type: twitterSchema
-})
+}, { usePushEach: true })
 module.exports = userSchema

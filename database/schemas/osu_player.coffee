@@ -26,5 +26,5 @@ osuPlayerSchema = new Schema({
         type: ObjectId
         ref: 'osuRequestModel'
       }]
-})
+}, { usePushEach: true })
 module.exports = osuPlayerSchema
