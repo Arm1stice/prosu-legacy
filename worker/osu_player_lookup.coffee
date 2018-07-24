@@ -92,10 +92,10 @@ module.exports = (queue) ->
                       return done "An error occurred while saving the stats request to the database"
                     logger.info "[osu_player_lookup.coffee] Saved the request for user #{player.name}. Saving user to database..."
                     user.save (err) ->
-                      logger.info "[osu_player_lookup.coffee] Saved #{player.name} to database. Job #{job.id} completed"
                       if err
                         logger.error err
-                        return done "An error occurred while saving the new user to the database"
+                        return done "An error occurred while saving the new request to the database"
+                      logger.info "[osu_player_lookup.coffee] Saved #{player.name} to database. Job #{job.id} completed"
                       return done null, user._id
                 else if shouldSaveUser
                   logger.info "[osu_player_lookup.coffee] We need to save #{player.name} to the database. Doing so..."
